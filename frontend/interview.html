@@ -1,0 +1,1295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#138a52">
+<meta name="description" content="PrepGenie mock interview workspace with analysis, coaching, and sensor-ready live monitoring.">
+<title>PrepGenie Interview</title>
+<link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  :root {
+    --bg: #f3f7f4;
+    --panel: #ffffff;
+    --panel-soft: #eef7f0;
+    --text: #163424;
+    --muted: #6a8174;
+    --primary: #138a52;
+    --primary-dark: #0c673c;
+    --border: rgba(19, 83, 49, 0.1);
+    --shadow: 0 18px 45px rgba(16, 76, 45, 0.08);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  html,
+  body {
+    width: 100%;
+    overflow-x: hidden;
+  }
+
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top right, rgba(19, 138, 82, 0.12), transparent 26%),
+      linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+    color: var(--text);
+  }
+
+  body.dark {
+    --bg: #101711;
+    --panel: #17211b;
+    --panel-soft: #1c2a22;
+    --text: #eef7f0;
+    --muted: #acc0b3;
+    --border: rgba(123, 226, 166, 0.12);
+    --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+  }
+
+  .sidebar {
+    width: 248px;
+    background: linear-gradient(180deg, #a8d5ba 0%, #90c8a6 100%);
+    color: #0e1311;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  body.dark .sidebar {
+    background: linear-gradient(180deg, #1f3227 0%, #18261e 100%);
+    color: var(--text);
+  }
+
+  .sidebar h2 {
+    display: grid;
+    grid-template-columns: 64px minmax(0, 1fr);
+    align-items: center;
+    gap: 14px;
+    padding: 0;
+    margin-bottom: 24px;
+  }
+
+  .sidebar-logo {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 22px rgba(17, 79, 47, 0.16));
+    flex-shrink: 0;
+  }
+
+  body.dark .sidebar-logo {
+    filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26));
+  }
+
+  .sidebar-brand-lockup {
+    min-width: 0;
+    display: grid;
+    gap: 4px;
+  }
+
+  .sidebar-brand-wordmark {
+    min-width: 0;
+    display: inline-flex;
+    align-items: center;
+    flex-wrap: nowrap;
+    gap: 0;
+    white-space: nowrap;
+    font-size: 24px;
+    line-height: 1;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    color: #103425;
+    text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+  }
+
+  .sidebar-brand-accent {
+    color: var(--primary-dark);
+    text-shadow: 0 0 18px rgba(19, 138, 82, 0.18);
+  }
+
+  .sidebar-brand-tag {
+    width: fit-content;
+    max-width: 100%;
+    display: inline-flex;
+    align-items: center;
+    padding: 5px 10px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.32);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: rgba(14, 19, 17, 0.78);
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  body.dark .sidebar-brand-wordmark {
+    color: #f2fff8;
+  }
+
+  body.dark .sidebar-brand-accent {
+    color: #8cf0b4;
+    text-shadow: 0 0 22px rgba(123, 226, 166, 0.22);
+  }
+
+  body.dark .sidebar-brand-tag {
+    background: rgba(123, 226, 166, 0.14);
+    border-color: rgba(123, 226, 166, 0.18);
+    color: rgba(242, 255, 248, 0.84);
+  }
+
+  .sidebar button {
+    width: 100%;
+    background: transparent;
+    border: none;
+    color: inherit;
+    text-align: left;
+    padding: 12px 14px;
+    margin-bottom: 8px;
+    font-size: 15px;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: 0.2s ease;
+  }
+
+  .sidebar button:hover,
+  .sidebar button.active {
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  .main-container {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    width: 100%;
+    overflow: hidden;
+  }
+
+  .workspace {
+    flex: 1 1 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding: 22px;
+    width: 100%;
+    min-width: 0;
+    overflow-y: auto;
+  }
+
+  .top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding: 18px 24px;
+    width: 100%;
+    min-width: 0;
+    background: rgba(255, 255, 255, 0.7);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  body.dark .top-bar {
+    background: rgba(23, 33, 27, 0.72);
+  }
+
+  .top-copy h1 {
+    font-size: 28px;
+    margin-bottom: 6px;
+  }
+
+  .top-copy p {
+    color: var(--muted);
+    font-size: 14px;
+  }
+
+  .top-copy,
+  .top-actions {
+    min-width: 0;
+  }
+
+  .top-actions {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    flex-wrap: wrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 999px;
+    padding: 10px 14px;
+    box-shadow: var(--shadow);
+    font-size: 14px;
+  }
+
+  .status-badge.secondary {
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  .lang-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
+  }
+
+  .lang-toggle .switch {
+    position: relative;
+    display: inline-block;
+    width: 42px;
+    height: 22px;
+  }
+
+  .lang-toggle .switch input {
+    display: none;
+  }
+
+  .lang-toggle .slider {
+    position: absolute;
+    inset: 0;
+    cursor: pointer;
+    background-color: #ced9d1;
+    transition: 0.3s;
+    border-radius: 999px;
+  }
+
+  .lang-toggle .slider:before {
+    position: absolute;
+    content: "";
+    width: 18px;
+    height: 18px;
+    left: 2px;
+    top: 2px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  .lang-toggle input:checked + .slider {
+    background-color: var(--primary);
+  }
+
+  .lang-toggle input:checked + .slider:before {
+    transform: translateX(20px);
+  }
+
+  .content {
+    display: grid;
+    width: 100%;
+    min-width: 0;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 1fr);
+    gap: 22px;
+    align-items: start;
+  }
+
+  .interview-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    min-width: 0;
+  }
+
+  .section-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 7px 12px;
+    border-radius: 999px;
+    background: rgba(19, 138, 82, 0.10);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+
+  .panel-intro {
+    display: grid;
+    gap: 6px;
+    margin-bottom: 16px;
+  }
+
+  .panel-intro p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  .support-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    align-items: start;
+  }
+
+  .support-grid > * {
+    min-height: 100%;
+  }
+
+  .hero-panel,
+  .question-card,
+  .feedback-card,
+  .side-panel,
+  .assistant-chat-panel,
+  .metrics-grid article {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 24px;
+    box-shadow: var(--shadow);
+  }
+
+  .hero-panel {
+    padding: 24px;
+    background:
+      linear-gradient(135deg, rgba(19, 138, 82, 0.12), rgba(255, 255, 255, 0) 55%),
+      var(--panel);
+  }
+
+  .hero-panel h2 {
+    font-size: 26px;
+    margin-bottom: 10px;
+  }
+
+  .hero-panel p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .metrics-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .metrics-grid article {
+    padding: 18px;
+  }
+
+  .metric-label {
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .metric-value {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+
+  .metric-note {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .question-card,
+  .feedback-card,
+  .side-panel {
+    padding: 22px;
+    width: 100%;
+    min-width: 0;
+    align-self: stretch;
+  }
+
+  .question-card {
+    display: grid;
+    gap: 16px;
+  }
+
+  .round-select {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+    flex-wrap: wrap;
+  }
+
+  .round-select label {
+    font-weight: 600;
+  }
+
+  .round-select-note {
+    flex-basis: 100%;
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+  }
+
+  .round-select select,
+  #answer,
+  .chatbox input {
+    width: 100%;
+    background: #f9fbfa;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--text);
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  body.dark .round-select select,
+  body.dark #answer,
+  body.dark .chatbox input {
+    background: #111914;
+  }
+
+  #question {
+    font-size: 28px;
+    line-height: 1.35;
+    margin-bottom: 16px;
+    color: var(--primary-dark);
+  }
+
+  #answer {
+    min-height: 170px;
+    resize: vertical;
+    line-height: 1.6;
+  }
+
+  .actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+  }
+
+  .actions button,
+  .chatbox button {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background-color: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s ease;
+  }
+
+  .actions button:hover,
+  .chatbox button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .secondary-button {
+    background: #edf7f0 !important;
+    color: var(--primary-dark) !important;
+  }
+
+  .feedback-card h3,
+  .side-panel h3 {
+    font-size: 20px;
+    margin-bottom: 14px;
+  }
+
+  .support-grid > * {
+    margin-top: 0;
+  }
+
+  .feedback-list {
+    display: grid;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .feedback-item {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 14px 16px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .camera-shell {
+    position: relative;
+    border-radius: 22px;
+    overflow: hidden;
+    background: #08110b;
+    aspect-ratio: 4 / 3;
+    margin-bottom: 4px;
+  }
+
+  #video,
+  #canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  #video {
+    object-fit: cover;
+    background: #08110b;
+  }
+
+  #canvas {
+    pointer-events: none;
+  }
+
+  .camera-overlay {
+    position: absolute;
+    left: 14px;
+    right: 14px;
+    bottom: 14px;
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .overlay-chip {
+    background: rgba(8, 17, 11, 0.72);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 12px;
+    font-size: 12px;
+    backdrop-filter: blur(8px);
+  }
+
+  .camera-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+  }
+
+  .camera-actions button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .camera-help {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.5;
+    margin-top: 10px;
+  }
+
+  .status-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .status-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 14px;
+  }
+
+  .status-card span {
+    display: block;
+    color: var(--muted);
+    font-size: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 8px;
+  }
+
+  .status-card strong {
+    font-size: 18px;
+  }
+
+  .iot-panel {
+    margin-top: 8px;
+    padding: 16px;
+    border-radius: 20px;
+    background: var(--panel-soft);
+    border: 1px solid var(--border);
+  }
+
+  .iot-panel h4 {
+    font-size: 18px;
+    margin-bottom: 6px;
+  }
+
+  .iot-panel p {
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  .iot-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-top: 14px;
+  }
+
+  .chatbox {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .assistant-dock {
+    display: grid;
+    gap: 16px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .assistant-chat-panel {
+    padding: 20px 22px;
+  }
+
+  .assistant-chat-panel h3 {
+    font-size: 20px;
+  }
+
+  .assistant-chat-row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+  }
+
+  .assistant-chat-row input {
+    width: 100%;
+    background: #f9fbfa;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    color: var(--text);
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  body.dark .assistant-chat-row input {
+    background: #111914;
+  }
+
+  .assistant-chat-row button {
+    border: none;
+    border-radius: 14px;
+    padding: 12px 18px;
+    background-color: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 15px;
+    transition: 0.2s ease;
+    white-space: nowrap;
+  }
+
+  .assistant-chat-row button:hover {
+    background-color: var(--primary-dark);
+    transform: translateY(-1px);
+  }
+
+  .voicebot-panel {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 14px;
+    border-radius: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+
+  .voicebot-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .voicebot-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .voicebot-status {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  .voicebot-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #9bb2a4;
+  }
+
+  .voicebot-status.active .voicebot-dot {
+    background: var(--primary);
+    box-shadow: 0 0 0 6px rgba(19, 138, 82, 0.12);
+  }
+
+  .voicebot-actions {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .voicebot-actions button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .voicebot-note {
+    color: var(--muted);
+    line-height: 1.5;
+    font-size: 13px;
+  }
+
+  .voice-emotion-panel {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+
+  .voice-emotion-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
+  .voice-emotion-title {
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--muted);
+  }
+
+  .voice-emotion-source {
+    display: inline-flex;
+    align-items: center;
+    padding: 6px 10px;
+    border-radius: 999px;
+    background: rgba(19, 138, 82, 0.10);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .voice-emotion-value {
+    font-size: 22px;
+    font-weight: 700;
+  }
+
+  .voice-emotion-detail {
+    color: var(--muted);
+    line-height: 1.55;
+    font-size: 14px;
+  }
+
+  .voice-emotion-panel button {
+    border: none;
+    border-radius: 12px;
+    padding: 10px 14px;
+    background: var(--primary);
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    width: fit-content;
+  }
+
+  .settings-panel {
+    display: grid;
+    gap: 12px;
+    margin-top: 14px;
+    padding: 16px;
+    border-radius: 18px;
+    background: var(--panel);
+    border: 1px solid var(--border);
+  }
+
+  .settings-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 0;
+    border-top: 1px solid rgba(19, 83, 49, 0.08);
+  }
+
+  .settings-row:first-of-type {
+    border-top: none;
+    padding-top: 0;
+  }
+
+  .settings-copy strong {
+    display: block;
+    font-size: 14px;
+    margin-bottom: 4px;
+  }
+
+  .settings-copy span {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.45;
+  }
+
+  .settings-panel select {
+    min-width: 110px;
+    background: #f9fbfa;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    padding: 10px 12px;
+    font-size: 14px;
+  }
+
+  body.dark .settings-panel select {
+    background: #111914;
+  }
+
+  #chatOutput,
+  #translated {
+    color: var(--muted);
+    line-height: 1.6;
+    min-height: 22px;
+  }
+
+  .hidden-helper {
+    display: none;
+  }
+
+  .popup {
+    position: fixed;
+    right: 20px;
+    bottom: 20px;
+    background: var(--primary);
+    color: #fff;
+    padding: 12px 16px;
+    border-radius: 14px;
+    box-shadow: var(--shadow);
+    z-index: 1000;
+  }
+
+  @media (max-width: 1180px) {
+    .metrics-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .content {
+      grid-template-columns: 1fr;
+    }
+
+    .support-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .assistant-chat-row {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 780px) {
+    body {
+      display: block;
+    }
+
+    .sidebar {
+      width: 100%;
+      padding: 16px;
+    }
+
+    .top-bar,
+    .workspace {
+      padding: 18px;
+    }
+
+    .metrics-grid,
+    .status-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .top-bar {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .sidebar h2 {
+      font-size: 26px;
+      margin-bottom: 16px;
+    }
+
+    .sidebar button {
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .top-actions,
+    .hero-panel,
+    .question-card,
+    .feedback-card,
+    .side-panel {
+      width: 100%;
+    }
+
+    .camera-shell {
+      min-height: 240px;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .workspace,
+    .top-bar {
+      padding: 14px;
+    }
+
+    .metrics-grid article,
+    .status-card,
+    .iot-panel,
+    .settings-panel,
+    .assistant-chat-panel,
+    .voicebot-panel {
+      padding: 14px;
+    }
+
+    .hero-panel,
+    .question-card,
+    .feedback-card,
+    .side-panel {
+      border-radius: 18px;
+    }
+
+    .camera-actions button,
+    .assistant-chat-row button,
+    .voicebot-actions button {
+      width: 100%;
+    }
+
+    .assistant-chat-row input,
+    textarea,
+    select {
+      font-size: 16px;
+    }
+  }
+</style>
+<link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+<div class="sidebar">
+  <div class="sidebar-main">
+    <div class="sidebar-topbar">
+      <div class="sidebar-section-label">Workspace</div>
+      <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+    </div>
+    <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+    <div class="sidebar-group">
+      <button type="button" id="dashboardBtn" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+      <button type="button" id="interviewBtn" class="active" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+      <button type="button" id="reportBtn" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+      <button type="button" id="notificationsBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="interviewNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+      <button type="button" id="adminBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+      <button type="button" id="helpBtn" data-short="HP" title="Help" onclick="go('help')">Help</button>
+    </div>
+  </div>
+  <div class="sidebar-foot">
+    <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+  </div>
+</div>
+<div class="main-container">
+  <div class="top-bar">
+    <div class="top-copy">
+      <h1 id="pageTitle">Professional Interview Practice</h1>
+      <p id="pageSubtitle">Stay on camera, track your response quality, and receive live guidance while you practice.</p>
+    </div>
+    <div class="top-actions">
+      <div class="status-badge" id="currentLang">English Mode</div>
+      <div class="status-badge secondary" id="activeRoundBadge">HR Round</div>
+      <div class="status-badge secondary" id="roundCountdownBadge">Next round in 07:30</div>
+      <div class="lang-toggle">
+        <span>EN</span>
+        <label class="switch">
+          <input id="langSwitch" type="checkbox" onclick="toggleLanguage()">
+          <span class="slider"></span>
+        </label>
+        <span>Hindi</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="workspace">
+    <div class="content">
+      <div class="interview-panel">
+      <section class="hero-panel">
+        <div class="section-tag">Live Practice</div>
+        <h2 id="heroTitle">Mock Interview Workspace</h2>
+        <p id="heroSubtitle">Practice with structured interview rounds, keep your delivery clear, and monitor score, stress, and posture without leaving the session.</p>
+      </section>
+
+      <section class="metrics-grid">
+        <article>
+          <div class="metric-label" id="scoreLabel">Live Score</div>
+          <div class="metric-value" id="score">0%</div>
+          <div class="metric-note" id="scoreNote">Updated when your answer is analyzed.</div>
+        </article>
+        <article>
+          <div class="metric-label" id="stressLabel">Stress Level</div>
+          <div class="metric-value" id="stress">Calm</div>
+          <div class="metric-note" id="stressNote">Estimated from answer quality and camera stability.</div>
+        </article>
+        <article>
+          <div class="metric-label" id="postureLabel">Posture</div>
+          <div class="metric-value" id="posture">Checking</div>
+          <div class="metric-note" id="postureNote">Camera-based posture guidance appears live.</div>
+        </article>
+        <article>
+          <div class="metric-label" id="timerLabel">Timer</div>
+          <div class="metric-value" id="timer">30:00</div>
+          <div class="metric-note" id="timerNote">The session timer keeps running during practice.</div>
+        </article>
+      </section>
+
+      <section class="question-card">
+        <div class="panel-intro">
+          <span class="section-tag">Current Question</span>
+          <p>Answer in your own words, then analyze it to update score, stress, posture, and session tracking.</p>
+        </div>
+        <div class="round-select">
+          <label id="roundLabel" for="roundType">Current Round:</label>
+          <select id="roundType" aria-label="Current round" disabled>
+            <option value="hr">HR Round</option>
+            <option value="technical">Technical Round</option>
+            <option value="coding">Coding Round</option>
+            <option value="behaviour">Behaviour Round</option>
+          </select>
+          <div id="roundAutoNote" class="round-select-note">The 30-minute interview rotates through all rounds automatically.</div>
+        </div>
+
+        <h2 id="question">Question appears here</h2>
+        <textarea id="answer" placeholder="Speak or type your answer..."></textarea>
+
+        <div class="actions">
+          <button id="speakBtn" onclick="startVoice()">Speak</button>
+          <button id="recordBtn" class="secondary-button" onclick="toggleRecording()">Record</button>
+          <button id="askSpeakBtn" onclick="analyzeCurrentAnswer()">Analyze Answer</button>
+          <button id="nextBtn" class="secondary-button" onclick="nextQuestion()">Next Question</button>
+        </div>
+
+        <p id="translated" class="hidden-helper"></p>
+      </section>
+
+      <section class="feedback-card">
+        <div class="panel-intro">
+          <span class="section-tag">Response Coaching</span>
+          <h3 id="feedbackTitle">Live Feedback</h3>
+        </div>
+        <p id="liveSuggestion">Your personalized suggestion will appear here after analysis.</p>
+        <div id="feedbackList" class="feedback-list">
+          <div class="feedback-item">Start speaking or type an answer to receive analysis feedback.</div>
+        </div>
+      </section>
+
+      <section class="support-grid">
+        <div class="voice-emotion-panel">
+          <div class="voice-emotion-head">
+            <div class="voice-emotion-title">Voice Emotion</div>
+            <div id="voiceEmotionSource" class="voice-emotion-source">Session-based fallback</div>
+          </div>
+          <div id="voiceEmotionValue" class="voice-emotion-value">Monitoring</div>
+          <p id="voiceEmotionDetail" class="voice-emotion-detail">Voice tone guidance will appear here after analysis.</p>
+          <button type="button" id="voiceEmotionBtn" onclick="analyzeVoiceEmotionManually()">Analyze Voice Emotion</button>
+        </div>
+
+        <div class="settings-panel">
+          <div class="voice-emotion-head">
+            <div class="voice-emotion-title">Session Settings</div>
+          </div>
+          <div class="settings-row">
+            <div class="settings-copy">
+              <strong>Auto coach voice</strong>
+              <span>Speak coach replies automatically after you ask a question.</span>
+            </div>
+            <input id="settingAutoCoachVoice" type="checkbox" onchange="updateInterviewSetting('autoCoachVoice', this.checked)">
+          </div>
+          <div class="settings-row">
+            <div class="settings-copy">
+              <strong>Auto voice emotion</strong>
+              <span>Refresh voice emotion during the session without pressing the button each time.</span>
+            </div>
+            <input id="settingAutoVoiceEmotion" type="checkbox" onchange="updateInterviewSetting('autoVoiceEmotion', this.checked)">
+          </div>
+          <div class="settings-row">
+            <div class="settings-copy">
+              <strong>Emotion popups</strong>
+              <span>Show coaching popups when stress, posture, or delivery needs attention.</span>
+            </div>
+            <input id="settingEmotionPopups" type="checkbox" onchange="updateInterviewSetting('emotionPopups', this.checked)">
+          </div>
+          <div class="settings-row">
+            <div class="settings-copy">
+              <strong>Camera guidance</strong>
+              <span>Choose how strict the posture monitor should feel during the session.</span>
+            </div>
+            <select id="settingCameraSensitivity" onchange="updateInterviewSetting('cameraSensitivity', this.value)">
+              <option value="standard">Standard</option>
+              <option value="strict">Strict</option>
+            </select>
+          </div>
+        </div>
+
+      </section>
+      </div>
+
+      <aside class="side-panel">
+      <div class="panel-intro">
+        <span class="section-tag">Live Monitor</span>
+        <h3 id="cameraMonitorTitle">Camera Monitor</h3>
+        <p>Use this panel to keep your framing stable while posture and emotion signals update from the active session.</p>
+      </div>
+      <div class="camera-shell">
+        <video id="video" autoplay playsinline muted></video>
+        <canvas id="canvas"></canvas>
+        <div class="camera-overlay">
+          <div class="overlay-chip" id="cameraStatus">Camera starting...</div>
+          <div class="overlay-chip" id="recordingStatus">Recorder idle</div>
+        </div>
+      </div>
+      <div class="camera-actions">
+        <button id="enableCameraBtn" type="button" onclick="enableCamera()">Enable Camera</button>
+      </div>
+      <p id="cameraHelp" class="camera-help">Allow camera permission when prompted. If you opened the page directly as a file, use a local server.</p>
+
+      <div class="status-grid">
+        <div class="status-card">
+          <span id="stressDetailLabel">Stress</span>
+          <strong id="stressDetail">Calm and steady</strong>
+        </div>
+        <div class="status-card">
+          <span id="postureDetailLabel">Posture</span>
+          <strong id="postureDetail">Align yourself with the frame</strong>
+        </div>
+        <div class="status-card">
+          <span id="emotionDetailLabel">Emotion</span>
+          <strong id="emotion">Monitoring mood signals</strong>
+        </div>
+      </div>
+
+      <div class="iot-panel">
+        <h4>ESP32 Sensor Feed</h4>
+        <p>Live pulse and MPU6050 values from the hardware board connected to your backend.</p>
+        <div class="iot-grid">
+          <div class="status-card">
+            <span>Device</span>
+            <strong id="iotDeviceStatus">Waiting for ESP32</strong>
+          </div>
+          <div class="status-card">
+            <span>Heart Rate</span>
+            <strong id="iotHeartRate">--</strong>
+          </div>
+          <div class="status-card">
+            <span>Temperature</span>
+            <strong id="iotTemperature">--</strong>
+          </div>
+          <div class="status-card">
+            <span>Signal</span>
+            <strong id="iotSignal">--</strong>
+          </div>
+          <div class="status-card">
+            <span>Movement</span>
+            <strong id="iotMovement">--</strong>
+          </div>
+          <div class="status-card">
+            <span>Last Packet</span>
+            <strong id="iotLastSeen">No device data yet</strong>
+          </div>
+        </div>
+        <p id="iotSummary" class="camera-help">Connect the ESP32 device to start streaming live pulse and motion data.</p>
+        <div id="iotInterviewPackets" class="iot-packet-panel">
+          <div class="empty-state">Waiting for ESP32 packets to arrive every 5 seconds.</div>
+        </div>
+      </div>
+      </aside>
+    </div>
+
+    <section class="assistant-dock">
+      <div class="assistant-chat-panel">
+        <div class="panel-intro">
+          <span class="section-tag">Coach Support</span>
+          <h3>Coach Chat</h3>
+          <p>Ask for help with answers, stress, posture, camera, timer, or interview strategy from the current session.</p>
+        </div>
+        <div class="chatbox">
+          <div class="assistant-chat-row">
+            <input id="chatInput" placeholder="Ask something...">
+            <button id="askCoachBtn" onclick="sendMessage()">Ask Coach</button>
+          </div>
+          <p id="chatOutput">PrepGenie coach is ready to help.</p>
+        </div>
+      </div>
+
+      <div class="voicebot-panel">
+        <div class="voicebot-head">
+          <div class="voicebot-title">Voice Assistant</div>
+          <div id="voicebotStatus" class="voicebot-status">
+            <span class="voicebot-dot"></span>
+            <span id="voicebotStatusText">Ready</span>
+          </div>
+        </div>
+        <div class="voicebot-actions">
+          <button type="button" id="voiceReplayBtn" onclick="replayCoachReply()">Speak Reply</button>
+          <button type="button" id="voiceStopBtn" class="secondary-button" onclick="stopCoachVoice()">Stop Voice</button>
+        </div>
+        <p id="voicebotNote" class="voicebot-note">The assistant will speak the latest coach reply here and you can replay or stop it anytime.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script src="js/theme.js"></script>
+<script src="js/apiConfig.js"></script>
+<script src="js/sessionHistory.js"></script>
+<script src="js/accessGuard.js"></script>
+<script src="js/iotLive.js"></script>
+<script src="js/interview.js"></script>
+<script src="js/voiceEmotion.js"></script>
+<script src="js/emotion.js"></script>
+<script src="js/voiceBot.js"></script>
+<script src="js/chatbot.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/sidebar.js"></script>
+</body>
+</html>
+
+

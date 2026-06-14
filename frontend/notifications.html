@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#138a52">
+  <meta name="description" content="PrepGenie notifications center built from saved interview sessions, score trends, and coaching signals.">
+  <title>PrepGenie Notifications</title>
+  <link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --bg: #f3f7f4;
+      --panel: #ffffff;
+      --panel-soft: #eef7f0;
+      --text: #163424;
+      --muted: #698174;
+      --primary: #138a52;
+      --primary-dark: #0d6038;
+      --border: rgba(19, 83, 49, 0.1);
+      --shadow: 0 18px 45px rgba(17, 79, 47, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      background:
+        radial-gradient(circle at top right, rgba(19, 138, 82, 0.14), transparent 26%),
+        radial-gradient(circle at bottom left, rgba(19, 138, 82, 0.08), transparent 24%),
+        linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    body.dark {
+      --bg: #101711;
+      --panel: #17211b;
+      --panel-soft: #1d2a22;
+      --text: #eef7f0;
+      --muted: #acc0b3;
+      --border: rgba(123, 226, 166, 0.12);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+    }
+
+    .sidebar {
+      width: 252px;
+      background: linear-gradient(180deg, #a8d5ba 0%, #90c8a6 100%);
+      color: #0e1311;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    body.dark .sidebar {
+      background: linear-gradient(180deg, #1f3227 0%, #18261e 100%);
+      color: var(--text);
+    }
+
+    .sidebar h2 {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      align-items: center;
+      gap: 14px;
+      padding: 0;
+      margin-bottom: 24px;
+    }
+
+    .sidebar-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 22px rgba(17, 79, 47, 0.16));
+      flex-shrink: 0;
+    }
+
+    body.dark .sidebar-logo {
+      filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26));
+    }
+
+    .sidebar-brand-lockup {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .sidebar-brand-wordmark {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0;
+      white-space: nowrap;
+      font-size: 25px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: #103425;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-brand-accent {
+      color: var(--primary-dark);
+      text-shadow: 0 0 18px rgba(19, 138, 82, 0.18);
+    }
+
+    .sidebar-brand-tag {
+      width: fit-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(14, 19, 17, 0.78);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body.dark .sidebar-brand-wordmark {
+      color: #f2fff8;
+    }
+
+    body.dark .sidebar-brand-accent {
+      color: #8cf0b4;
+      text-shadow: 0 0 22px rgba(123, 226, 166, 0.22);
+    }
+
+    body.dark .sidebar-brand-tag {
+      background: rgba(123, 226, 166, 0.14);
+      border-color: rgba(123, 226, 166, 0.18);
+      color: rgba(242, 255, 248, 0.84);
+    }
+
+    .sidebar button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      padding: 12px 14px;
+      margin-bottom: 2px;
+      font-size: 15px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: 0.2s ease;
+    }
+
+    .sidebar button:hover,
+    .sidebar button.active {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .sidebar-foot {
+      display: grid;
+      gap: 12px;
+    }
+
+    .account-chip {
+      background: rgba(255, 255, 255, 0.22);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      border-radius: 18px;
+      padding: 14px;
+    }
+
+    body.dark .account-chip {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: rgba(255, 255, 255, 0.08);
+    }
+
+    .account-chip strong {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+    }
+
+    .account-chip span {
+      display: block;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .page {
+      flex: 1;
+      display: grid;
+      align-content: start;
+      gap: 22px;
+      padding: clamp(20px, 2.6vw, 30px);
+      overflow-y: auto;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .section-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(19, 138, 82, 0.10);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 14px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      margin-bottom: 10px;
+    }
+
+    .hero p,
+    .panel-subtitle,
+    .metric-note,
+    .snapshot-note,
+    .notification-item p,
+    .insight-item p,
+    .empty-state {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-content: flex-start;
+      justify-content: flex-end;
+    }
+
+    .btn {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .btn.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .btn.secondary {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .metric-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card {
+      padding: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .metric-card::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 86px;
+      height: 86px;
+      background: radial-gradient(circle, rgba(19, 138, 82, 0.10), transparent 68%);
+      pointer-events: none;
+    }
+
+    .metric-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 10px;
+    }
+
+    .metric-value {
+      font-size: 30px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .notification-layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.45fr) minmax(320px, 0.95fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: clamp(18px, 2vw, 22px);
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 14px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 {
+      font-size: 22px;
+      margin-bottom: 4px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: rgba(19, 138, 82, 0.12);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .notification-list,
+    .detail-stack,
+    .snapshot-grid,
+    .coverage-grid,
+    .insight-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .notification-item,
+    .snapshot-item,
+    .insight-item {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .notification-item {
+      border-left-width: 4px;
+      border-left-style: solid;
+      border-left-color: rgba(19, 138, 82, 0.65);
+    }
+
+    .notification-item strong,
+    .snapshot-item strong,
+    .insight-item strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .notification-item p:last-child {
+      margin-top: 10px;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .notification-item.notification-alert {
+      border-left-color: #dc2626;
+    }
+
+    .notification-item.notification-warning {
+      border-left-color: #f59e0b;
+    }
+
+    .notification-item.notification-success {
+      border-left-color: #138a52;
+    }
+
+    .notification-item.notification-coach,
+    .notification-item.notification-tip,
+    .notification-item.notification-info {
+      border-left-color: rgba(19, 138, 82, 0.65);
+    }
+
+    .notification-item.notification-neutral {
+      border-left-color: rgba(14, 19, 17, 0.2);
+    }
+
+    .snapshot-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .snapshot-item span {
+      display: block;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .snapshot-item strong {
+      margin-bottom: 0;
+      font-size: 17px;
+    }
+
+    .snapshot-note {
+      margin-top: 2px;
+    }
+
+    .coverage-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .coverage-pill {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--panel-soft);
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 700;
+      text-align: center;
+    }
+
+    .coverage-pill.is-covered {
+      background: rgba(19, 138, 82, 0.12);
+      color: var(--primary-dark);
+      border-color: rgba(19, 138, 82, 0.18);
+    }
+
+    .empty-state {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 18px;
+    }
+
+    .popup {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1000;
+      background: #163424;
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1220px) {
+      .metric-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .notification-layout {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 820px) {
+      body {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .page {
+        padding: 18px;
+      }
+
+      .hero {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 560px) {
+      .metric-strip,
+      .snapshot-grid,
+      .coverage-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-main">
+      <div class="sidebar-topbar">
+        <div class="sidebar-section-label">Workspace</div>
+        <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+      </div>
+      <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+      <div class="sidebar-group">
+        <button type="button" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+        <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+        <button type="button" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+        <button type="button" class="active" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="notificationsNavBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+        <button type="button" id="adminNavBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+        <button type="button" data-short="HP" title="Help" onclick="go('help')">Help</button>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <div class="account-chip">
+        <strong>Current Access</strong>
+        <span id="sidebarAccountStatus">Guest mode. Sign in to load your tracked notifications.</span>
+      </div>
+      <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+    </div>
+  </aside>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-copy">
+        <div class="section-kicker">Session Notifications</div>
+        <h1>Active Notifications</h1>
+        <p>Only the current session-based notifications are shown here.</p>
+      </div>
+      <div class="top-actions">
+        <button class="btn secondary" type="button" onclick="refreshNotificationsPage()">Refresh</button>
+      </div>
+    </section>
+
+    <section class="card panel">
+      <div class="panel-header">
+        <div>
+          <h2>Active Notifications</h2>
+          <p class="panel-subtitle" id="notificationFeedStatus">Based on your latest saved interview sessions.</p>
+        </div>
+        <span id="notificationsCountPill" class="pill">0 active</span>
+      </div>
+      <div id="notificationList" class="notification-list">
+        <div class="empty-state">Loading notifications...</div>
+      </div>
+    </section>
+  </main>
+
+  <script src="js/theme.js"></script>
+  <script src="js/apiConfig.js"></script>
+  <script src="js/sessionHistory.js"></script>
+  <script src="js/accessGuard.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const NOTIFICATION_REFRESH_MS = 5000;
+    const accessGranted = window.PrepGenieAccess?.requireAuth?.();
+
+    function go(page) {
+      try {
+        window.location.assign(new URL(`${page}.html`, window.location.href).href);
+      } catch (_error) {
+        window.location.href = `${page}.html`;
+      }
+    }
+    window.go = go;
+
+    function getCurrentUser() {
+      return window.PrepGenieAccess?.getCurrentUser?.() || null;
+    }
+
+    function isAdminUser(user = getCurrentUser()) {
+      return Boolean(window.PrepGenieAccess?.isAdminUser?.(user));
+    }
+
+    function applyAccessUi() {
+      const currentUser = getCurrentUser();
+      const adminUser = isAdminUser(currentUser);
+      const sidebarAccountStatus = document.getElementById("sidebarAccountStatus");
+      const adminNavBtn = document.getElementById("adminNavBtn");
+      const feedStatus = document.getElementById("notificationFeedStatus");
+
+      if (sidebarAccountStatus) {
+        sidebarAccountStatus.textContent = currentUser && currentUser.email
+          ? `${currentUser.username || currentUser.email}${adminUser ? " - Admin access" : " - Member access"}`
+          : "Guest mode. Sign in to load your tracked notifications.";
+      }
+
+      if (adminNavBtn) {
+        adminNavBtn.style.display = adminUser ? "block" : "none";
+      }
+
+      if (feedStatus) {
+        feedStatus.textContent = currentUser && currentUser.email
+          ? "Based on your latest saved interview sessions."
+          : "Preview mode notifications appear after you analyze answers.";
+      }
+    }
+
+    function renderNotificationMeta(items) {
+      const realItems = items.filter((item) => item.key !== "no-session-history");
+      const countPill = document.getElementById("notificationsCountPill");
+      const count = realItems.length;
+
+      if (countPill) {
+        countPill.textContent = `${count} active`;
+      }
+    }
+
+    function showNotificationsToast(message) {
+      const existing = document.getElementById("notificationsToast");
+      if (existing) existing.remove();
+
+      const toast = document.createElement("div");
+      toast.id = "notificationsToast";
+      toast.className = "popup";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 2200);
+    }
+
+    async function refreshNotificationsPage(showToast = true) {
+      try {
+        applyAccessUi();
+
+        if (!window.PrepGenieNotifications) {
+          throw new Error("Notifications module unavailable");
+        }
+
+        const history = await window.PrepGenieNotifications.loadHistory();
+        const items = window.PrepGenieNotifications.buildNotifications(history.slice(-16));
+        window.PrepGenieNotifications.present(items);
+        renderNotificationMeta(items);
+
+        if (showToast) {
+          showNotificationsToast("Notifications refreshed successfully.");
+        }
+      } catch (error) {
+        console.error("Notifications page refresh error:", error);
+        applyAccessUi();
+
+        if (showToast) {
+          showNotificationsToast("Notifications refreshed with limited data.");
+        }
+      }
+    }
+    window.refreshNotificationsPage = refreshNotificationsPage;
+
+    applyAccessUi();
+
+    if (accessGranted !== false) {
+      refreshNotificationsPage(false).catch((error) => {
+        console.error("Initial notifications load error:", error);
+      });
+      setInterval(() => {
+        refreshNotificationsPage(false).catch((error) => {
+          console.error("Notifications auto-refresh error:", error);
+        });
+      }, NOTIFICATION_REFRESH_MS);
+    }
+  </script>
+</body>
+</html>

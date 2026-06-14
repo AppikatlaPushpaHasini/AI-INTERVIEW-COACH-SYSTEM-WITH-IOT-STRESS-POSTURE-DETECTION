@@ -1,0 +1,1320 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#138a52">
+  <meta name="description" content="PrepGenie professional interview report with scores, trends, and downloadable PDF summary.">
+  <title>PrepGenie Reports</title>
+  <link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --bg: #f3f7f4;
+      --panel: #ffffff;
+      --panel-soft: #eef7f0;
+      --text: #163424;
+      --muted: #678173;
+      --primary: #138a52;
+      --primary-soft: #d8f2df;
+      --accent: #0d5f38;
+      --warning: #f59e0b;
+      --danger: #dc2626;
+      --shadow: 0 18px 40px rgba(19, 83, 49, 0.08);
+      --border: rgba(19, 83, 49, 0.1);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      background:
+        radial-gradient(circle at top right, rgba(19, 138, 82, 0.15), transparent 28%),
+        linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    body.dark {
+      --bg: #0f1712;
+      --panel: #17211b;
+      --panel-soft: #1d2b23;
+      --text: #eaf7ee;
+      --muted: #a8c0b0;
+      --primary: #7be2a6;
+      --primary-soft: rgba(123, 226, 166, 0.14);
+      --accent: #d6f7e1;
+      --border: rgba(123, 226, 166, 0.15);
+      --shadow: 0 18px 40px rgba(0, 0, 0, 0.28);
+    }
+
+    .sidebar {
+      width: 248px;
+      background: linear-gradient(180deg, #a8d5ba 0%, #8dc5a2 100%);
+      color: #0e1311;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+    }
+
+    body.dark .sidebar {
+      background: linear-gradient(180deg, #203328 0%, #18261e 100%);
+      color: var(--text);
+    }
+
+    .sidebar h2 {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      align-items: center;
+      gap: 14px;
+      padding: 0;
+      margin-bottom: 24px;
+    }
+
+    .sidebar-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 22px rgba(17, 79, 47, 0.16));
+      flex-shrink: 0;
+    }
+
+    body.dark .sidebar-logo {
+      filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26));
+    }
+
+    .sidebar-brand-lockup {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .sidebar-brand-wordmark {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0;
+      white-space: nowrap;
+      font-size: 23px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: #103425;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-brand-accent {
+      color: var(--primary-dark);
+      text-shadow: 0 0 18px rgba(19, 138, 82, 0.18);
+    }
+
+    .sidebar-brand-tag {
+      width: fit-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(14, 19, 17, 0.78);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body.dark .sidebar-brand-wordmark {
+      color: #f2fff8;
+    }
+
+    body.dark .sidebar-brand-accent {
+      color: #8cf0b4;
+      text-shadow: 0 0 22px rgba(123, 226, 166, 0.22);
+    }
+
+    body.dark .sidebar-brand-tag {
+      background: rgba(123, 226, 166, 0.14);
+      border-color: rgba(123, 226, 166, 0.18);
+      color: rgba(242, 255, 248, 0.84);
+    }
+
+    .sidebar button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      padding: 12px 14px;
+      margin-bottom: 6px;
+      font-size: 16px;
+      cursor: pointer;
+      border-radius: 12px;
+      transition: 0.2s ease;
+    }
+
+    .sidebar button:hover,
+    .sidebar button.active {
+      background: rgba(255, 255, 255, 0.28);
+    }
+
+    body.dark .sidebar button:hover,
+    body.dark .sidebar button.active {
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .page {
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      line-height: 1.05;
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      max-width: 720px;
+      line-height: 1.6;
+    }
+
+    .hero-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font-size: 15px;
+      cursor: pointer;
+      transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    }
+
+    .button:hover {
+      transform: translateY(-1px);
+      box-shadow: var(--shadow);
+    }
+
+    .button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .button.secondary {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .status-strip {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      box-shadow: var(--shadow);
+    }
+
+    .metric-card {
+      padding: 22px;
+    }
+
+    .metric-label {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 12px;
+    }
+
+    .metric-value {
+      font-size: 34px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .metric-note {
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1.8fr) minmax(320px, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      padding: 24px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .panel h2 {
+      font-size: 22px;
+    }
+
+    .panel-subtitle {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .chart-wrap {
+      position: relative;
+      min-height: 320px;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 7px 12px;
+      background: var(--primary-soft);
+      color: var(--accent);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .suggestion-list,
+    .history-list {
+      display: grid;
+      gap: 14px;
+    }
+
+    .suggestion-item,
+    .history-item {
+      background: var(--panel-soft);
+      border-radius: 18px;
+      padding: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .suggestion-item strong,
+    .history-item strong {
+      display: block;
+      margin-bottom: 8px;
+    }
+
+    .suggestion-item p,
+    .history-item p,
+    .history-item li {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    .history-item ul {
+      padding-left: 18px;
+      margin-top: 8px;
+    }
+
+    .empty-state {
+      padding: 20px;
+      background: var(--panel-soft);
+      border-radius: 18px;
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .report-packet-section {
+      padding: 20px;
+    }
+
+    .report-packet-pill {
+      padding: 6px 10px;
+      font-size: 12px;
+      letter-spacing: 0.04em;
+      background: rgba(19, 138, 82, 0.1);
+      border: 1px solid rgba(19, 138, 82, 0.12);
+      color: var(--accent);
+    }
+
+    .report-packet-section .iot-packet-panel {
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .report-packet-section .iot-packet-title {
+      font-size: 11px;
+      letter-spacing: 0.14em;
+    }
+
+    .report-packet-section .iot-packet-list {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 10px;
+    }
+
+    .report-packet-section .iot-packet-item {
+      padding: 12px;
+      border-radius: 16px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(238, 247, 240, 0.96));
+      box-shadow: 0 12px 24px rgba(19, 83, 49, 0.06);
+    }
+
+    .report-packet-section .iot-packet-head {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid rgba(19, 83, 49, 0.08);
+    }
+
+    .report-packet-section .iot-packet-head strong {
+      font-size: 14px;
+    }
+
+    .report-packet-section .iot-packet-head span {
+      font-size: 12px;
+    }
+
+    .report-packet-section .iot-packet-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .report-packet-section .iot-packet-grid div {
+      padding: 8px 10px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, 0.72);
+      border: 1px solid rgba(19, 83, 49, 0.08);
+    }
+
+    .report-packet-section .iot-packet-grid span {
+      font-size: 10px;
+      letter-spacing: 0.08em;
+      margin-bottom: 3px;
+    }
+
+    .report-packet-section .iot-packet-grid strong {
+      font-size: 13px;
+      line-height: 1.3;
+    }
+
+    .report-packet-section .iot-packet-summary {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed rgba(19, 83, 49, 0.12);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    body.dark .report-packet-pill {
+      background: rgba(123, 226, 166, 0.12);
+      border-color: rgba(123, 226, 166, 0.16);
+    }
+
+    body.dark .report-packet-section .iot-packet-item {
+      background:
+        linear-gradient(180deg, rgba(28, 40, 32, 0.98), rgba(24, 35, 28, 0.96));
+      box-shadow: 0 14px 26px rgba(0, 0, 0, 0.24);
+    }
+
+    body.dark .report-packet-section .iot-packet-head,
+    body.dark .report-packet-section .iot-packet-summary {
+      border-color: rgba(123, 226, 166, 0.14);
+    }
+
+    body.dark .report-packet-section .iot-packet-grid div {
+      background: rgba(255, 255, 255, 0.03);
+      border-color: rgba(123, 226, 166, 0.12);
+    }
+
+    .popup {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1000;
+      background: #163424;
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 1100px) {
+      .status-strip,
+      .layout {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    @media (max-width: 900px) {
+      body {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: static;
+      }
+
+      .page {
+        padding: 20px;
+      }
+
+      .hero,
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .report-packet-section .iot-packet-list,
+      .report-packet-section .iot-packet-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .status-strip,
+      .layout {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-main">
+      <div class="sidebar-topbar">
+        <div class="sidebar-section-label">Workspace</div>
+        <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+      </div>
+      <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+      <div class="sidebar-group">
+        <button type="button" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+        <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+        <button type="button" class="active" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+        <button type="button" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="reportNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+        <button type="button" id="adminNavBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+        <button type="button" data-short="HP" title="Help" onclick="go('help')">Help</button>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+    </div>
+  </aside>
+
+  <main class="page">
+    <section class="hero">
+      <div>
+        <h1>Live Interview Reports</h1>
+        <p>
+          Track your latest interview score, see the score graph update from saved attempts,
+          and get live suggestions based on weak points in your answers.
+        </p>
+      </div>
+      <div class="hero-actions">
+        <button class="button secondary" onclick="refreshReport()">Refresh</button>
+        <button class="button primary" onclick="downloadReportPdf()">Download PDF</button>
+      </div>
+    </section>
+
+    <section class="status-strip">
+      <article class="card metric-card">
+        <div class="metric-label">Latest Score</div>
+        <div class="metric-value" id="latestScore">0%</div>
+        <div class="metric-note" id="latestSummary">Waiting for interview analysis data.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Average Score</div>
+        <div class="metric-value" id="averageScore">0%</div>
+        <div class="metric-note">Based on your saved attempts in this session history.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Performance Trend</div>
+        <div class="metric-value" id="trendValue">Stable</div>
+        <div class="metric-note" id="trendNote">Add a few answers to unlock the score trend.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Top Focus</div>
+        <div class="metric-value" id="focusArea">Clarity</div>
+        <div class="metric-note" id="focusNote">Suggestions will appear after your first analysis.</div>
+      </article>
+    </section>
+
+    <section class="status-strip">
+      <article class="card metric-card">
+        <div class="metric-label">ESP32 Device</div>
+        <div class="metric-value" id="iotReportDevice">Offline</div>
+        <div class="metric-note" id="iotReportDeviceNote">Waiting for live board data.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Heart Rate</div>
+        <div class="metric-value" id="iotReportHeartRate">--</div>
+        <div class="metric-note">Current pulse reading from the live sensor feed.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Average Heart Rate</div>
+        <div class="metric-value" id="iotReportAvgHeartRate">--</div>
+        <div class="metric-note">Average from the recent ESP32 packets stored by the backend.</div>
+      </article>
+
+      <article class="card metric-card">
+        <div class="metric-label">Movement</div>
+        <div class="metric-value" id="iotReportMovement">--</div>
+        <div class="metric-note" id="iotReportMovementNote">Live MPU6050 motion score and posture insight.</div>
+      </article>
+    </section>
+
+    <section class="card panel iot-live-section report-packet-section">
+      <div class="panel-header">
+        <div>
+          <h2>ESP32 Packet Monitor</h2>
+          <p class="panel-subtitle">A compact view of the latest backend sensor packets. This section refreshes every 5 seconds while the device is streaming.</p>
+        </div>
+        <span class="pill report-packet-pill">Auto refresh 5s</span>
+      </div>
+      <div id="iotReportPackets" class="iot-packet-panel">
+        <div class="empty-state">Waiting for ESP32 packets to arrive every 5 seconds.</div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="card panel">
+        <div class="panel-header">
+          <div>
+            <h2>Score Graph</h2>
+            <p class="panel-subtitle">Each point shows one analyzed response from your interview flow.</p>
+          </div>
+          <span class="pill" id="sessionCount">0 sessions</span>
+        </div>
+        <div class="chart-wrap">
+          <canvas id="scoreChart"></canvas>
+        </div>
+      </article>
+
+      <article class="card panel">
+        <div class="panel-header">
+          <div>
+            <h2>Live Suggestions</h2>
+            <p class="panel-subtitle">Suggestions are generated from feedback and score patterns.</p>
+          </div>
+        </div>
+        <div id="suggestionList" class="suggestion-list"></div>
+      </article>
+
+      <article class="card panel">
+        <div class="panel-header">
+          <div>
+            <h2>Recent Sessions</h2>
+            <p class="panel-subtitle">Latest saved attempts from backend history or browser storage fallback.</p>
+          </div>
+        </div>
+        <div id="historyList" class="history-list"></div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/theme.js"></script>
+  <script src="js/apiConfig.js"></script>
+  <script src="js/sessionHistory.js"></script>
+  <script src="js/accessGuard.js"></script>
+  <script src="js/iotLive.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const API_URL = window.PrepGenieConfig?.API_BASE || "http://localhost:5000/api";
+    const historyHelpers = window.PrepGenieHistory;
+    let scoreChart;
+    const accessGranted = window.PrepGenieAccess?.requireAuth?.();
+
+    function go(page) {
+      try {
+        window.location.assign(new URL(`${page}.html`, window.location.href).href);
+      } catch (_error) {
+        window.location.href = page + ".html";
+      }
+    }
+    window.go = go;
+
+    function applyAccessUi() {
+      const adminNavBtn = document.getElementById("adminNavBtn");
+      if (adminNavBtn) {
+        adminNavBtn.style.display = window.PrepGenieAccess?.isAdminUser?.() ? "block" : "none";
+      }
+    }
+
+    function getCurrentUser() {
+      return window.PrepGenieAccess?.getCurrentUser?.() || null;
+    }
+
+    function resolveReportOwnerName() {
+      const currentUser = getCurrentUser();
+      const loggedInName = String(currentUser?.username || currentUser?.email || "").trim();
+      if (loggedInName) {
+        localStorage.setItem("reportExportName", loggedInName);
+        return loggedInName;
+      }
+
+      const previousName = String(localStorage.getItem("reportExportName") || "").trim();
+      const enteredName = window.prompt(
+        "Enter the name to display on the PDF report:",
+        previousName
+      );
+
+      const finalName = String(enteredName || "").trim();
+      if (!finalName) {
+        return null;
+      }
+
+      localStorage.setItem("reportExportName", finalName);
+      return finalName;
+    }
+
+    function parseFeedback(feedback) {
+      return historyHelpers?.parseFeedback?.(feedback) || [];
+    }
+
+    function readLocalHistory() {
+      try {
+        const stored = JSON.parse(localStorage.getItem("reportHistory")) || [];
+        const normalized = historyHelpers?.normalizeHistory?.(stored) || [];
+        return historyHelpers?.filterForCurrentUser?.(normalized, getCurrentUser()) || normalized;
+      } catch (error) {
+        console.error("Local history read error:", error);
+        return [];
+      }
+    }
+
+    async function fetchBackendHistory() {
+      if (!getCurrentUser()) return [];
+
+      try {
+        const data = window.PrepGenieConfig?.fetchApiJson
+          ? await window.PrepGenieConfig.fetchApiJson("/history", {}, { timeoutMs: 6000 })
+          : await fetch(`${API_URL}/history`).then((response) => {
+            if (!response.ok) throw new Error("History API unavailable");
+            return response.json();
+          });
+        if (!Array.isArray(data)) return [];
+
+        const normalized = historyHelpers?.normalizeHistory?.(data) || [];
+        return historyHelpers?.filterForCurrentUser?.(normalized, getCurrentUser()) || normalized;
+      } catch (error) {
+        console.warn("Using local report history fallback:", error.message);
+        return [];
+      }
+    }
+
+    async function loadReportData() {
+      const backendHistory = await fetchBackendHistory();
+      const localHistory = readLocalHistory();
+      const history = historyHelpers?.dedupeHistory?.(backendHistory.length ? backendHistory : localHistory) || (backendHistory.length ? backendHistory : localHistory);
+
+      if (!history.length) {
+        const lastScore = Number(localStorage.getItem("lastScore")) || 0;
+        const lastFeedback = parseFeedback(JSON.parse(localStorage.getItem("lastFeedback") || "[]"));
+        const lastSuggestion = localStorage.getItem("lastSuggestion") || "";
+
+        if (lastScore || lastFeedback.length || lastSuggestion) {
+          history.push({
+            score: lastScore,
+            feedback: lastFeedback,
+            suggestion: lastSuggestion,
+            round: "latest",
+            question: "Most recent answer",
+            answer: "",
+            date: new Date().toISOString()
+          });
+        }
+      }
+
+      return history
+        .sort((a, b) => new Date(a.date) - new Date(b.date))
+        .slice(-12);
+    }
+
+    function roundLabel(round) {
+      return historyHelpers?.roundLabel?.(round) || "General Session";
+    }
+
+    function formatSessionDate(value) {
+      return historyHelpers?.formatSessionDate?.(value) || new Date(value).toLocaleString();
+    }
+
+    function calculateAverage(history) {
+      if (!history.length) return 0;
+      return Math.round(history.reduce((sum, item) => sum + item.score, 0) / history.length);
+    }
+
+    function collectFeedback(history) {
+      return history.reduce((items, item) => {
+        if (Array.isArray(item.feedback)) {
+          items.push(...item.feedback);
+        }
+        return items;
+      }, []);
+    }
+
+    function getTrend(history) {
+      if (history.length < 2) {
+        return { label: "Stable", note: "Add a few answers to unlock the score trend." };
+      }
+
+      const first = history[0].score;
+      const last = history[history.length - 1].score;
+      const diff = last - first;
+
+      if (diff >= 10) {
+        return { label: "Improving", note: `Your score is up by ${diff} points from the earliest saved attempt.` };
+      }
+
+      if (diff <= -10) {
+        return { label: "Needs Review", note: `Your score is down by ${Math.abs(diff)} points. Revisit weaker answers.` };
+      }
+
+      return { label: "Stable", note: "Your scores are holding steady. Focus on adding stronger examples." };
+    }
+
+    function buildSuggestions(history) {
+      const feedbackPool = collectFeedback(history);
+      const latest = history[history.length - 1];
+      const score = latest ? latest.score : 0;
+      const suggestions = [];
+
+      if (score < 50) {
+        suggestions.push({
+          title: "Raise answer depth",
+          body: "Your latest score is below 50. Try structuring answers with context, action, and result."
+        });
+      }
+
+      if (feedbackPool.some(item => /short/i.test(item))) {
+        suggestions.push({
+          title: "Speak a little longer",
+          body: "Some answers are too short. Aim for 4 to 6 clear sentences with one concrete example."
+        });
+      }
+
+      if (feedbackPool.some(item => /example/i.test(item))) {
+        suggestions.push({
+          title: "Add examples",
+          body: "Your report suggests missing examples. Use one real project, team task, or measurable result."
+        });
+      }
+
+      if (!suggestions.length && latest) {
+        suggestions.push({
+          title: "Keep momentum",
+          body: latest.suggestion || "Your answers are doing well. Keep practicing clarity, confidence, and structure."
+        });
+      }
+
+      return suggestions.slice(0, 4);
+    }
+
+    function getFocusArea(history) {
+      const feedbackPool = collectFeedback(history).join(" ").toLowerCase();
+      if (feedbackPool.includes("short")) return { title: "Answer Depth", note: "Expand each answer with a stronger explanation and result." };
+      if (feedbackPool.includes("example")) return { title: "Examples", note: "Use STAR-style examples to make your answers more convincing." };
+      if (history.length && history[history.length - 1].score < 50) return { title: "Confidence", note: "Slow down, speak clearly, and keep your answer structure tight." };
+      return { title: "Clarity", note: "Your current feedback is balanced. Keep refining sentence flow and confidence." };
+    }
+
+    function showReportToast(message) {
+      const existing = document.getElementById("reportToast");
+      if (existing) existing.remove();
+
+      const toast = document.createElement("div");
+      toast.id = "reportToast";
+      toast.className = "popup";
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 2200);
+    }
+
+    function renderMetrics(history) {
+      const latest = history[history.length - 1];
+      const average = calculateAverage(history);
+      const trend = getTrend(history);
+      const focus = getFocusArea(history);
+
+      document.getElementById("latestScore").textContent = `${latest ? latest.score : 0}%`;
+      document.getElementById("latestSummary").textContent = latest
+        ? (latest.suggestion || "Latest interview feedback loaded successfully.")
+        : "Waiting for interview analysis data.";
+      document.getElementById("averageScore").textContent = `${average}%`;
+      document.getElementById("trendValue").textContent = trend.label;
+      document.getElementById("trendNote").textContent = trend.note;
+      document.getElementById("focusArea").textContent = focus.title;
+      document.getElementById("focusNote").textContent = focus.note;
+      document.getElementById("sessionCount").textContent = `${history.length} session${history.length === 1 ? "" : "s"}`;
+    }
+
+    function renderSuggestions(history) {
+      const suggestionList = document.getElementById("suggestionList");
+      const suggestions = buildSuggestions(history);
+
+      if (!suggestions.length) {
+        suggestionList.innerHTML = `<div class="empty-state">Complete one analyzed answer to see live suggestions here.</div>`;
+        return;
+      }
+
+      suggestionList.innerHTML = suggestions.map(item => `
+        <article class="suggestion-item">
+          <strong>${item.title}</strong>
+          <p>${item.body}</p>
+        </article>
+      `).join("");
+    }
+
+    function renderHistory(history) {
+      const historyList = document.getElementById("historyList");
+
+      if (!history.length) {
+        historyList.innerHTML = `<div class="empty-state">No saved session data yet. Start an interview and this page will update automatically.</div>`;
+        return;
+      }
+
+      const recentItems = [...history].reverse().slice(0, 5);
+      historyList.innerHTML = recentItems.map(item => `
+        <article class="history-item">
+          <strong>${roundLabel(item.round)} • ${item.score}%</strong>
+          <p>${formatSessionDate(item.date)}</p>
+          <p>${item.suggestion || "Feedback captured for this answer."}</p>
+          ${item.feedback.length ? `<ul>${item.feedback.map(point => `<li>${point}</li>`).join("")}</ul>` : ""}
+        </article>
+      `).join("");
+    }
+
+    function renderChart(history) {
+      const labels = history.map((item, index) => `${roundLabel(item.round).replace(" Round", "")} ${index + 1}`);
+      const scores = history.map(item => item.score);
+      const ctx = document.getElementById("scoreChart");
+      const chartWrap = ctx?.parentElement;
+      if (!ctx) return;
+
+      if (typeof Chart !== "function") {
+        if (chartWrap) {
+          chartWrap.innerHTML = `<div class="empty-state">Report chart is unavailable right now, but the rest of the report is still working.</div>`;
+        }
+        return;
+      }
+
+      if (scoreChart) {
+        scoreChart.destroy();
+      }
+
+      scoreChart = new Chart(ctx, {
+        type: "line",
+        data: {
+          labels,
+          datasets: [{
+            label: "Score",
+            data: scores,
+            tension: 0.35,
+            fill: true,
+            borderColor: "#138a52",
+            backgroundColor: "rgba(19, 138, 82, 0.16)",
+            pointBackgroundColor: "#138a52",
+            pointRadius: 4,
+            pointHoverRadius: 6
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              min: 0,
+              max: 100,
+              ticks: { stepSize: 20 }
+            }
+          }
+        }
+      });
+    }
+
+    async function refreshIoTReport() {
+      if (!window.PrepGenieIoT) return;
+
+      const deviceEl = document.getElementById("iotReportDevice");
+      const deviceNoteEl = document.getElementById("iotReportDeviceNote");
+      const heartRateEl = document.getElementById("iotReportHeartRate");
+      const avgHeartRateEl = document.getElementById("iotReportAvgHeartRate");
+      const movementEl = document.getElementById("iotReportMovement");
+      const movementNoteEl = document.getElementById("iotReportMovementNote");
+      const packetsEl = document.getElementById("iotReportPackets");
+
+      try {
+        const summary = await window.PrepGenieIoT.getSummary(30);
+        const live = summary.live;
+        const online = window.PrepGenieIoT.isConnected(live);
+        const interval = window.PrepGenieIoT.formatSampleRate(live);
+
+        deviceEl.textContent = online ? "Live" : "Offline";
+        deviceNoteEl.textContent = online
+          ? `${live.deviceLabel || "ESP32 sensor"} connected. Packet interval ${interval}. Last packet ${window.PrepGenieIoT.formatLastSeen(live.updatedAt)}.`
+          : `Sensor offline. Last packet ${window.PrepGenieIoT.formatLastSeen(live && live.updatedAt)}.`;
+        heartRateEl.textContent = window.PrepGenieIoT.formatHeartRate(live);
+        avgHeartRateEl.textContent = summary.stats && summary.stats.avgHeartRateBpm
+          ? `${Math.round(summary.stats.avgHeartRateBpm)} BPM`
+          : "--";
+        movementEl.textContent = window.PrepGenieIoT.formatMovement(live);
+        movementNoteEl.textContent = live && live.posture
+          ? `${window.PrepGenieIoT.buildStatusText(live)}`
+          : "Live MPU6050 motion score and posture insight.";
+        window.PrepGenieIoT.renderPacketFeed(packetsEl, summary.recent, {
+          title: "Recent packets",
+          limit: 4,
+          emptyMessage: "No ESP32 packets have been stored yet."
+        });
+      } catch (error) {
+        deviceEl.textContent = "Offline";
+        deviceNoteEl.textContent = "Unable to load live ESP32 data from the backend.";
+        heartRateEl.textContent = "--";
+        avgHeartRateEl.textContent = "--";
+        movementEl.textContent = "--";
+        movementNoteEl.textContent = "Live MPU6050 motion score and posture insight.";
+        window.PrepGenieIoT.renderPacketFeed(packetsEl, [], {
+          title: "Recent packets",
+          emptyMessage: "Live IoT packets could not be loaded."
+        });
+      }
+    }
+
+    async function refreshReport(showToast = true) {
+      try {
+        const history = await loadReportData();
+        renderMetrics(history);
+        renderSuggestions(history);
+        renderHistory(history);
+        renderChart(history.length ? history : [{ score: 0, date: new Date().toISOString() }]);
+        await refreshIoTReport();
+
+        if (showToast) {
+          showReportToast("Report refreshed successfully.");
+        }
+      } catch (error) {
+        console.error("Report refresh error:", error);
+        if (showToast) {
+          showReportToast("Report refreshed with limited data.");
+        }
+      }
+    }
+    window.refreshReport = refreshReport;
+
+    async function downloadReportPdf() {
+      const history = await loadReportData();
+      const reportOwnerName = resolveReportOwnerName();
+      if (!reportOwnerName) {
+        return;
+      }
+      let iotSummary = null;
+      try {
+        iotSummary = window.PrepGenieIoT ? await window.PrepGenieIoT.getSummary(30) : null;
+      } catch (error) {
+        iotSummary = null;
+      }
+      const latest = history[history.length - 1] || { score: 0, feedback: [], suggestion: "No data yet." };
+      const average = calculateAverage(history);
+      const focus = getFocusArea(history);
+      const trend = getTrend(history);
+      const suggestions = buildSuggestions(history);
+      const { jsPDF } = window.jspdf;
+      const doc = new jsPDF();
+      const pageWidth = doc.internal.pageSize.getWidth();
+      const pageHeight = doc.internal.pageSize.getHeight();
+      const margin = 16;
+      const contentWidth = pageWidth - (margin * 2);
+      const palette = {
+        emerald: [19, 138, 82],
+        emeraldDark: [14, 73, 46],
+        ink: [25, 42, 34],
+        slate: [93, 109, 101],
+        border: [218, 228, 222],
+        panel: [247, 250, 248],
+        soft: [234, 244, 238],
+        white: [255, 255, 255]
+      };
+      let y = 18;
+
+      function fitLines(text, maxWidth, maxLines = 2) {
+        const lines = doc.splitTextToSize(String(text || ""), maxWidth);
+        if (lines.length <= maxLines) return lines;
+        const trimmed = lines.slice(0, maxLines);
+        trimmed[maxLines - 1] = `${String(trimmed[maxLines - 1]).replace(/\s+$/, "")}...`;
+        return trimmed;
+      }
+
+      function pageFooter() {
+        doc.setDrawColor(...palette.border);
+        doc.setLineWidth(0.4);
+        doc.line(margin, pageHeight - 14, pageWidth - margin, pageHeight - 14);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...palette.slate);
+        doc.text("PrepGenie single-page performance summary", margin, pageHeight - 8.5);
+        doc.text(new Date().toLocaleDateString(), pageWidth - margin, pageHeight - 8.5, { align: "right" });
+      }
+
+      function metricCard(x, top, width, height, label, value, note = "") {
+        doc.setFillColor(...palette.panel);
+        doc.setDrawColor(...palette.border);
+        doc.roundedRect(x, top, width, height, 5, 5, "FD");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.5);
+        doc.setTextColor(...palette.slate);
+        doc.text(String(label).toUpperCase(), x + 5, top + 7);
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(15);
+        doc.setTextColor(...palette.ink);
+        doc.text(fitLines(String(value), width - 10, 2), x + 5, top + 15);
+        if (note) {
+          doc.setFont("helvetica", "normal");
+          doc.setFontSize(7.8);
+          doc.setTextColor(...palette.slate);
+          const lines = fitLines(note, width - 10, 2);
+          doc.text(lines, x + 5, top + 23);
+        }
+      }
+
+      function compactCard(x, top, width, title, body, accent = palette.emerald, minHeight = 28) {
+        const lines = fitLines(body, width - 16, 6);
+        const height = Math.max(minHeight, 14 + (lines.length * 4.5));
+        doc.setFillColor(...palette.panel);
+        doc.setDrawColor(...palette.border);
+        doc.roundedRect(x, top, width, height, 4, 4, "FD");
+        doc.setFillColor(...accent);
+        doc.roundedRect(x, top, 4, height, 4, 4, "F");
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(10);
+        doc.setTextColor(...palette.ink);
+        doc.text(title, x + 8, top + 7);
+        doc.setFont("helvetica", "normal");
+        doc.setFontSize(9.2);
+        doc.setTextColor(...palette.slate);
+        doc.text(lines, x + 8, top + 13);
+        return height;
+      }
+
+      function labelValue(x, top, label, value, align = "left", maxWidth = 34) {
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(8.2);
+        doc.setTextColor(...palette.slate);
+        doc.text(String(label).toUpperCase(), x, top, { align });
+        doc.setFont("helvetica", "bold");
+        doc.setFontSize(9.2);
+        doc.setTextColor(...palette.ink);
+        doc.text(fitLines(String(value), maxWidth, 2), x, top + 5.5, { align });
+      }
+
+    function sessionLabel() {
+        return roundLabel(latest.round || "general");
+      }
+
+      function scoreBand(score) {
+        if (score >= 80) return "Strong";
+        if (score >= 60) return "Promising";
+        if (score >= 40) return "Developing";
+        return "Needs Attention";
+      }
+
+      const generatedAt = new Date().toLocaleString();
+      const reportSummary = latest.suggestion || "This report reflects the latest interview analysis and improvement direction.";
+      const scoreCanvas = document.getElementById("scoreChart");
+      const chartImage = scoreCanvas && typeof scoreCanvas.toDataURL === "function"
+        ? scoreCanvas.toDataURL("image/png", 1.0)
+        : null;
+      const sensorLive = iotSummary && iotSummary.live ? iotSummary.live : null;
+      const sensorOnline = window.PrepGenieIoT && sensorLive ? window.PrepGenieIoT.isConnected(sensorLive) : false;
+      const sensorNote = sensorLive
+        ? (window.PrepGenieIoT?.buildStatusText(sensorLive) || "Live sensor snapshot captured.")
+        : "No live ESP32 sensor data was available when this report was generated.";
+      const pdfSuggestions = suggestions.length
+        ? suggestions
+        : [{ title: "Keep momentum", body: "Continue practicing to maintain and improve your interview performance." }];
+      const feedbackItems = latest.feedback.length ? latest.feedback : ["No feedback items available."];
+
+      doc.setFillColor(...palette.emeraldDark);
+      doc.rect(0, 0, pageWidth, 52, "F");
+      doc.setFillColor(...palette.emerald);
+      doc.circle(pageWidth - 22, 14, 18, "F");
+      doc.setFillColor(66, 177, 120);
+      doc.circle(pageWidth - 42, 30, 12, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(24);
+      doc.setTextColor(...palette.white);
+      doc.text("PREPGENIE", margin, 17);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10.5);
+      doc.text("Professional Interview Performance Report", margin, 25);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(17);
+      doc.text(reportOwnerName, pageWidth / 2, 36, { align: "center" });
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.5);
+      doc.text(generatedAt, pageWidth - margin, 17, { align: "right" });
+      doc.text(sessionLabel(), pageWidth - margin, 25, { align: "right" });
+
+      y = 58;
+      doc.setFillColor(...palette.panel);
+      doc.setDrawColor(...palette.border);
+      doc.roundedRect(margin, y, contentWidth, 22, 6, 6, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(12);
+      doc.setTextColor(...palette.ink);
+      doc.text("Executive Summary", margin + 7, y + 8);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(9.4);
+      doc.setTextColor(...palette.slate);
+      const summaryLines = fitLines(
+        `${reportSummary} Current performance band: ${scoreBand(latest.score)}. Primary focus area: ${focus.title}.`,
+        contentWidth - 14,
+        2
+      );
+      doc.text(summaryLines, margin + 7, y + 15);
+      y += 28;
+
+      const gap = 6;
+      const boxWidth = (contentWidth - gap) / 2;
+      metricCard(margin, y, boxWidth, 28, "Latest Score", `${latest.score}%`, "Most recent evaluated answer");
+      metricCard(margin + boxWidth + gap, y, boxWidth, 28, "Average Score", `${average}%`, "Across saved interview attempts");
+      y += 34;
+      metricCard(margin, y, boxWidth, 28, "Performance Trend", trend.label, trend.note);
+      metricCard(margin + boxWidth + gap, y, boxWidth, 28, "Top Focus", focus.title, focus.note);
+      y += 36;
+
+      const lowerTop = y;
+      const leftWidth = 108;
+      const rightX = margin + leftWidth + 6;
+      const rightWidth = pageWidth - margin - rightX;
+
+      doc.setFillColor(...palette.soft);
+      doc.roundedRect(margin, lowerTop - 4, leftWidth, 11, 4, 4, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11.2);
+      doc.setTextColor(...palette.emeraldDark);
+      doc.text("Performance Snapshot", margin + 5, lowerTop + 2.5);
+
+      if (chartImage) {
+        doc.setFillColor(...palette.panel);
+        doc.setDrawColor(...palette.border);
+        doc.roundedRect(margin, lowerTop + 10, leftWidth, 62, 5, 5, "FD");
+        doc.addImage(chartImage, "PNG", margin + 4, lowerTop + 14, leftWidth - 8, 52);
+      } else {
+        compactCard(margin, lowerTop + 10, leftWidth, "Chart unavailable", "The score graph could not be embedded. The score cards above reflect the latest data.");
+      }
+
+      doc.setFillColor(...palette.soft);
+      doc.roundedRect(rightX, lowerTop - 4, rightWidth, 11, 4, 4, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11.2);
+      doc.setTextColor(...palette.emeraldDark);
+      doc.text("Candidate & Sensor", rightX + 5, lowerTop + 2.5);
+
+      doc.setFillColor(...palette.panel);
+      doc.setDrawColor(...palette.border);
+      doc.roundedRect(rightX, lowerTop + 10, rightWidth, 62, 5, 5, "FD");
+      labelValue(rightX + 6, lowerTop + 18, "Candidate", reportOwnerName, "left", 34);
+      labelValue(rightX + 6, lowerTop + 31, "Round", sessionLabel(), "left", 34);
+      labelValue(rightX + 6, lowerTop + 44, "Band", scoreBand(latest.score), "left", 34);
+      labelValue(rightX + 6, lowerTop + 57, "Sensor", sensorOnline ? "Live" : "Offline", "left", 34);
+      labelValue(rightX + rightWidth - 6, lowerTop + 18, "Heart Rate", sensorLive && sensorLive.heartRateBpm ? `${Math.round(sensorLive.heartRateBpm)} BPM` : "--", "right", 28);
+      labelValue(rightX + rightWidth - 6, lowerTop + 31, "Posture", sensorLive?.posture || "--", "right", 28);
+      labelValue(rightX + rightWidth - 6, lowerTop + 44, "Movement", sensorLive && sensorLive.movementScore != null ? `${Math.round(sensorLive.movementScore)}%` : "--", "right", 28);
+      labelValue(rightX + rightWidth - 6, lowerTop + 57, "Generated", new Date().toLocaleDateString(), "right", 28);
+
+      const bottomTop = lowerTop + 80;
+      doc.setFillColor(...palette.soft);
+      doc.roundedRect(margin, bottomTop - 4, boxWidth, 11, 4, 4, "F");
+      doc.roundedRect(margin + boxWidth + gap, bottomTop - 4, boxWidth, 11, 4, 4, "F");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11.2);
+      doc.setTextColor(...palette.emeraldDark);
+      doc.text("Key Feedback", margin + 5, bottomTop + 2.5);
+      doc.text("Recommended Actions", margin + boxWidth + gap + 5, bottomTop + 2.5);
+
+      const feedbackBody = feedbackItems.slice(0, 2).map((item, index) => `${index + 1}. ${item}`).join(" ");
+      const actionsBody = pdfSuggestions.slice(0, 2).map((item, index) => `${index + 1}. ${item.title}: ${item.body}`).join(" ");
+      const feedbackHeight = compactCard(margin, bottomTop + 10, boxWidth, "Highlights", feedbackBody || "No feedback items available.", palette.emerald, 46);
+      const actionsHeight = compactCard(margin + boxWidth + gap, bottomTop + 10, boxWidth, "Priority Next Steps", actionsBody || "Keep practicing with clear structure and examples.", [25, 102, 61], 46);
+
+      const noteTop = bottomTop + 10 + Math.max(feedbackHeight, actionsHeight) + 8;
+      doc.setFillColor(...palette.panel);
+      doc.setDrawColor(...palette.border);
+      doc.roundedRect(margin, noteTop, contentWidth, 22, 5, 5, "FD");
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(9.2);
+      doc.setTextColor(...palette.ink);
+      doc.text("Live Note", margin + 6, noteTop + 7);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(8.9);
+      doc.setTextColor(...palette.slate);
+      const noteLines = fitLines(sensorNote, contentWidth - 12, 2);
+      doc.text(noteLines, margin + 6, noteTop + 13);
+
+      pageFooter();
+      doc.save("prepgenie-single-page-report.pdf");
+    }
+    window.downloadReportPdf = downloadReportPdf;
+
+    applyAccessUi();
+    if (accessGranted !== false) {
+      refreshReport(false).catch((error) => {
+        console.error("Initial report load error:", error);
+      });
+      setInterval(() => {
+        refreshReport(false).catch((error) => {
+          console.error("Report auto-refresh error:", error);
+        });
+      }, 5000);
+    }
+  </script>
+</body>
+</html>
+

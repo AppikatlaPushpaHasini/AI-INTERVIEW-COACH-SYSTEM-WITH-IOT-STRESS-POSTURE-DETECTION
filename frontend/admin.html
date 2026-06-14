@@ -1,0 +1,1383 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#138a52">
+  <meta name="description" content="PrepGenie admin portal for users, sessions, question management, support inbox, and IoT monitoring.">
+  <title>PrepGenie Admin Portal</title>
+  <link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --bg: #f3f7f4;
+      --panel: #ffffff;
+      --panel-soft: #eef7f0;
+      --text: #163424;
+      --muted: #698174;
+      --primary: #138a52;
+      --primary-dark: #0d6038;
+      --border: rgba(19, 83, 49, 0.1);
+      --shadow: 0 18px 45px rgba(17, 79, 47, 0.08);
+      --danger: #dc2626;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(19, 138, 82, 0.12), transparent 26%),
+        linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+      color: var(--text);
+      padding: 0;
+    }
+
+    body.dark {
+      --bg: #101711;
+      --panel: #17211b;
+      --panel-soft: #1d2a22;
+      --text: #eef7f0;
+      --muted: #acc0b3;
+      --border: rgba(123, 226, 166, 0.12);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+    }
+
+    .admin-layout {
+      display: flex;
+      width: 100%;
+      min-height: 100vh;
+    }
+
+    .shell {
+      flex: 1 1 auto;
+      min-width: 0;
+      max-width: none;
+      margin: 0;
+      display: grid;
+      gap: 18px;
+      padding: 24px;
+    }
+
+    .topbar,
+    .panel {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .topbar {
+      padding: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+    }
+
+    .brand-wrap {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand-mark {
+      width: 70px;
+      height: 70px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 24px rgba(17, 79, 47, 0.16));
+      flex-shrink: 0;
+    }
+
+    body.dark .brand-mark {
+      filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.28));
+    }
+
+    .brand-label {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(19, 138, 82, 0.1);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    .topbar h1 {
+      font-size: clamp(28px, 4vw, 40px);
+      margin-bottom: 8px;
+    }
+
+    .topbar p,
+    .panel-subtitle,
+    .table td,
+    .empty-state,
+    .status-text,
+    .editor-help {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .actions,
+    .tab-row,
+    .toolbar {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(19, 138, 82, 0.1);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      border: 1px solid var(--border);
+    }
+
+    button,
+    select {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      font-size: 15px;
+    }
+
+    button {
+      cursor: pointer;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    button.secondary,
+    select {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    button.danger {
+      background: var(--danger);
+    }
+
+    .panel {
+      padding: 22px;
+    }
+
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 16px;
+    }
+
+    .panel h2 {
+      font-size: 24px;
+      margin-bottom: 6px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.05fr 1fr;
+      gap: 18px;
+    }
+
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .stat-value {
+      font-size: 30px;
+      font-weight: 700;
+    }
+
+    .tab-btn.active {
+      background: var(--primary-dark);
+    }
+
+    .tab-panel.hidden {
+      display: none;
+    }
+
+    .table-wrap {
+      overflow: auto;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 600px;
+    }
+
+    .table th,
+    .table td {
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      vertical-align: top;
+    }
+
+    .table th {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--muted);
+      background: rgba(19, 138, 82, 0.06);
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      border-radius: 999px;
+      padding: 6px 10px;
+      background: rgba(19, 138, 82, 0.12);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    textarea {
+      width: 100%;
+      min-height: 320px;
+      resize: vertical;
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      background: transparent;
+      color: var(--text);
+      padding: 16px;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    .status-text {
+      margin-top: 12px;
+    }
+
+    .empty-state {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .popup {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1000;
+      background: #163424;
+      color: #fff;
+      border-radius: 14px;
+      padding: 12px 16px;
+      box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+      max-width: 320px;
+      line-height: 1.5;
+    }
+
+    @media (max-width: 980px) {
+      .grid,
+      .summary-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .shell {
+        padding: 88px 16px 24px;
+      }
+
+      .topbar,
+      .panel-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="sidebar">
+      <div class="sidebar-main">
+        <div class="sidebar-topbar">
+          <div class="sidebar-section-label">Workspace</div>
+          <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+        </div>
+        <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+        <div class="sidebar-group">
+          <button type="button" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+          <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+          <button type="button" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+          <button type="button" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="adminNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+          <button type="button" class="active" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+          <button type="button" data-short="HP" title="Help" onclick="go('help')">Help</button>
+          <button type="button" data-short="LG" title="Login / Register" onclick="go('index')">Login / Register</button>
+        </div>
+      </div>
+      <div class="sidebar-foot">
+        <div class="account-chip">
+          <strong>Product Console</strong>
+          <span>Admin controls for live users, session history, support inbox, and question bank management.</span>
+        </div>
+        <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+      </div>
+    </aside>
+
+    <div class="shell">
+      <section class="topbar">
+        <div class="brand-wrap">
+          <div>
+            <div class="brand-label">PrepGenie Product Console</div>
+            <h1>Admin Portal</h1>
+            <p>Manage registered users, review interview session history, and update the live question banks used by PrepGenie.</p>
+          </div>
+        </div>
+        <div class="actions">
+          <div id="apiStatusBadge" class="status-badge">Backend status checking</div>
+          <button type="button" class="secondary" onclick="refreshAllData()">Refresh All</button>
+        </div>
+      </section>
+
+      <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Overview</h2>
+          <p class="panel-subtitle">Real-time admin metrics from the backend APIs.</p>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <article class="stat">
+          <div class="stat-label">Registered Users</div>
+          <div class="stat-value" id="userCount">0</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">Saved Sessions</div>
+          <div class="stat-value" id="historyCount">0</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">Bank Questions</div>
+          <div class="stat-value" id="questionSetCount">0</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">Support Requests</div>
+          <div class="stat-value" id="contactCount">0</div>
+        </article>
+      </div>
+      </section>
+
+      <section class="panel">
+      <div class="panel-header">
+        <div>
+          <h2>Live IoT Feed</h2>
+          <p class="panel-subtitle">Current ESP32 pulse and MPU6050 packets arriving at the backend.</p>
+        </div>
+        <div class="actions">
+          <button class="secondary" onclick="loadIoTFeed()">Refresh IoT</button>
+        </div>
+      </div>
+      <div class="summary-grid">
+        <article class="stat">
+          <div class="stat-label">Device Status</div>
+          <div class="stat-value" id="iotAdminStatus">Offline</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">Heart Rate</div>
+          <div class="stat-value" id="iotAdminHeartRate">--</div>
+        </article>
+        <article class="stat">
+          <div class="stat-label">Temperature</div>
+          <div class="stat-value" id="iotAdminTemp">--</div>
+        </article>
+      </div>
+      <p id="iotAdminNote" class="status-text">Waiting for live ESP32 data.</p>
+      <div id="iotPacketsWrap" style="margin-top: 16px;"></div>
+      </section>
+
+      <section class="panel">
+      <div class="tab-row">
+        <button class="tab-btn active" data-tab="users" onclick="switchTab('users')">Users</button>
+        <button class="tab-btn" data-tab="history" onclick="switchTab('history')">Session History</button>
+        <button class="tab-btn" data-tab="questions" onclick="switchTab('questions')">Question Bank</button>
+        <button class="tab-btn" data-tab="contacts" onclick="switchTab('contacts')">Support Inbox</button>
+      </div>
+    </section>
+
+    <section id="usersTab" class="panel tab-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Registered Users</h2>
+          <p class="panel-subtitle">Users are loaded from the MongoDB-backed auth collection.</p>
+        </div>
+        <div class="actions">
+          <button class="secondary" onclick="loadUsers()">Refresh Users</button>
+        </div>
+      </div>
+      <div id="usersWrap"></div>
+    </section>
+
+    <section id="historyTab" class="panel tab-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Interview Session History</h2>
+          <p class="panel-subtitle">Saved session data coming from the same `/api/history` store used by the app.</p>
+        </div>
+        <div class="actions">
+          <button class="secondary" onclick="loadHistory()">Refresh History</button>
+        </div>
+      </div>
+      <div id="historyWrap"></div>
+    </section>
+
+    <section id="questionsTab" class="panel tab-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Question Bank Editor</h2>
+          <p class="panel-subtitle">Edit one question per line and save directly to the backend `questions.json` file.</p>
+        </div>
+      </div>
+
+      <div class="grid">
+        <div>
+          <div class="toolbar" style="margin-bottom: 14px;">
+            <select id="questionType" onchange="loadQuestionEditor()">
+              <option value="hr">HR</option>
+              <option value="technical">Technical</option>
+              <option value="coding">Coding</option>
+              <option value="behaviour">Behaviour</option>
+            </select>
+            <button class="secondary" onclick="loadQuestions()">Refresh Questions</button>
+            <button onclick="saveQuestions()">Save Questions</button>
+          </div>
+          <textarea id="questionEditor" placeholder="One question per line"></textarea>
+          <p class="status-text" id="questionStatus">Load a question set to begin editing.</p>
+        </div>
+
+        <div>
+          <div class="empty-state">
+            <strong>Edited Questions Preview</strong>
+            <p class="editor-help">This side panel now shows only the questions you are actively editing in the textarea. It will stay empty until you make a change.</p>
+          </div>
+          <div id="questionPreview" class="table-wrap" style="margin-top: 16px;"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="contactsTab" class="panel tab-panel">
+      <div class="panel-header">
+        <div>
+          <h2>Support Inbox</h2>
+          <p class="panel-subtitle">Messages sent from the help page are stored here for the owner account.</p>
+        </div>
+        <div class="actions">
+          <button class="secondary" onclick="loadContacts()">Refresh Inbox</button>
+        </div>
+      </div>
+      <div id="contactsWrap"></div>
+      </section>
+    </div>
+  </div>
+
+  <script src="js/theme.js"></script>
+  <script src="js/apiConfig.js"></script>
+  <script src="js/sessionHistory.js"></script>
+  <script src="js/accessGuard.js"></script>
+  <script src="js/iotLive.js"></script>
+  <script src="js/localQuestionBank.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const SUPPORT_QUEUE_KEY = 'prepgenieSupportQueue';
+    const ADMIN_USERS_CACHE_KEY = 'prepgenieAdminUsersCache';
+    const ADMIN_HISTORY_CACHE_KEY = 'prepgenieAdminHistoryCache';
+    const ADMIN_QUESTIONS_CACHE_KEY = 'prepgenieAdminQuestionsCache';
+    const ADMIN_QUESTION_DRAFT_KEY = 'prepgenieAdminQuestionDrafts';
+    const LOCAL_QUESTION_BANK_PATH = 'data/questions.json';
+    const DEFAULT_QUESTION_SETS = {
+      hr: [
+        'Tell me about yourself',
+        'Why should we hire you?',
+        'What are your strengths?'
+      ],
+      technical: [
+        'Explain OOP concepts',
+        'What is a REST API?',
+        'Difference between SQL and NoSQL?'
+      ],
+      coding: [
+        'Write a function to reverse a string.',
+        'Check whether a number is a palindrome.',
+        'Explain the time complexity of binary search.'
+      ],
+      behaviour: [
+        'Describe a challenge you faced',
+        'How do you handle stress?',
+        'Tell me about teamwork'
+      ]
+    };
+    const historyHelpers = window.PrepGenieHistory;
+    let cachedQuestions = {};
+    let questionEditorDirty = false;
+    const accessGranted = window.PrepGenieAccess?.requireAuth?.();
+
+    function go(page) {
+      const target = page === 'index' ? 'index.html' : `${page}.html`;
+      window.location.href = target;
+    }
+    window.go = go;
+
+    function getCurrentUser() {
+      return window.PrepGenieAccess?.getCurrentUser?.() || null;
+    }
+
+    function isAdminUser() {
+      return Boolean(window.PrepGenieAccess?.isAdminUser?.(getCurrentUser()));
+    }
+
+    function isPreviewAdminAccess() {
+      return Boolean(window.PrepGenieAccess?.isPreviewMode?.());
+    }
+
+    async function fetchJson(url, options, timeoutMs = 7000) {
+      const path = String(url || '').replace(/^https?:\/\/[^/]+\/api/, '');
+
+      if (window.PrepGenieConfig?.fetchApiJson) {
+        return window.PrepGenieConfig.fetchApiJson(path, options || {}, { timeoutMs });
+      }
+
+      const response = await fetch(url, options);
+      if (!response.ok) {
+        throw new Error(`Request failed: ${response.status}`);
+      }
+      return response.json();
+    }
+
+    function guardAdminPage() {
+      if (isAdminUser() || isPreviewAdminAccess()) return true;
+
+      document.body.innerHTML = `
+        <div class="shell">
+          <section class="panel">
+            <div class="panel-header">
+              <div>
+                <h2>Admin Access Restricted</h2>
+                <p class="panel-subtitle">This portal is visible only to the admin email hasiniappikatla11@gmail.com. Please return to the dashboard or sign in with that account.</p>
+              </div>
+            </div>
+            <div class="actions">
+              <button class="secondary" onclick="window.location.href='dashboard.html'">Back to Dashboard</button>
+              <button onclick="window.location.href='index.html'">Login / Register</button>
+            </div>
+          </section>
+        </div>
+      `;
+
+      return false;
+    }
+
+    function switchTab(tabName, options = {}) {
+      const sectionIdMap = {
+        users: 'usersTab',
+        history: 'historyTab',
+        questions: 'questionsTab',
+        contacts: 'contactsTab'
+      };
+      const scroll = options && options.scroll !== false;
+
+      document.querySelectorAll('.tab-btn').forEach((button) => {
+        button.classList.toggle('active', button.dataset.tab === tabName);
+      });
+
+      document.querySelectorAll('.tab-panel').forEach((panel) => {
+        panel.classList.remove('hidden');
+      });
+
+      const target = document.getElementById(sectionIdMap[tabName] || sectionIdMap.users);
+      if (scroll && target) {
+        target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+    window.switchTab = switchTab;
+
+    function renderEmpty(targetId, message) {
+      document.getElementById(targetId).innerHTML = `<div class="empty-state">${message}</div>`;
+    }
+
+    function roundLabel(round) {
+      return historyHelpers?.roundLabel?.(round) || 'General Session';
+    }
+
+    function formatSessionDate(value) {
+      return historyHelpers?.formatSessionDate?.(value) || (value ? new Date(value).toLocaleString() : '-');
+    }
+
+    function setApiStatus(message, isHealthy = true) {
+      const badge = document.getElementById('apiStatusBadge');
+      if (!badge) return;
+      badge.textContent = message;
+      badge.style.background = isHealthy ? 'rgba(19, 138, 82, 0.1)' : 'rgba(220, 38, 38, 0.1)';
+      badge.style.color = isHealthy ? 'var(--primary-dark)' : 'var(--danger)';
+    }
+
+    function markBackendOnline(note = 'API reachable') {
+      setApiStatus(`Backend ready • ${note}`, true);
+    }
+
+    function showAdminToast(message) {
+      const existing = document.getElementById('adminToast');
+      if (existing) existing.remove();
+
+      const toast = document.createElement('div');
+      toast.id = 'adminToast';
+      toast.className = 'popup';
+      toast.textContent = message;
+      document.body.appendChild(toast);
+
+      setTimeout(() => {
+        if (toast.parentNode) toast.remove();
+      }, 2200);
+    }
+
+    function parseFeedback(feedback) {
+      if (Array.isArray(feedback)) return feedback;
+      if (typeof feedback === 'string' && feedback.trim()) return [feedback];
+      return [];
+    }
+
+    function readJsonStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function writeJsonStorage(key, value) {
+      try {
+        localStorage.setItem(key, JSON.stringify(value));
+      } catch (_error) {
+        // Ignore storage write failures and keep the page usable.
+      }
+    }
+
+    function clearJsonStorage(key) {
+      try {
+        localStorage.removeItem(key);
+      } catch (_error) {
+        // Ignore storage write failures and keep the page usable.
+      }
+    }
+
+    function normalizeQuestionSets(value) {
+      const source = value && typeof value === 'object' ? value : {};
+      return {
+        hr: Array.isArray(source.hr) ? source.hr : [...DEFAULT_QUESTION_SETS.hr],
+        technical: Array.isArray(source.technical) ? source.technical : [...DEFAULT_QUESTION_SETS.technical],
+        coding: Array.isArray(source.coding) ? source.coding : [...DEFAULT_QUESTION_SETS.coding],
+        behaviour: Array.isArray(source.behaviour)
+          ? source.behaviour
+          : Array.isArray(source.behavioral)
+            ? source.behavioral
+            : [...DEFAULT_QUESTION_SETS.behaviour]
+      };
+    }
+
+    function normalizeQuestionText(value) {
+      return String(value || '')
+        .trim()
+        .toLowerCase()
+        .replace(/\s+/g, ' ');
+    }
+
+    function getTotalQuestionCount(questionSets) {
+      return Object.values(questionSets || {}).reduce((total, items) => {
+        return total + (Array.isArray(items) ? items.length : 0);
+      }, 0);
+    }
+
+    function hasAnyQuestions(questionSets) {
+      return getTotalQuestionCount(questionSets) > 0;
+    }
+
+    async function loadLocalQuestionBankFile() {
+      const response = await fetch(LOCAL_QUESTION_BANK_PATH, { cache: 'no-store' });
+      if (!response.ok) {
+        throw new Error(`Local question bank unavailable: ${response.status}`);
+      }
+
+      return normalizeQuestionSets(await response.json());
+    }
+
+    function getBundledLocalQuestionBank() {
+      if (window.PrepGenieLocalQuestionBank && typeof window.PrepGenieLocalQuestionBank === 'object') {
+        return normalizeQuestionSets(window.PrepGenieLocalQuestionBank);
+      }
+
+      return {};
+    }
+
+    function getQuestionDrafts() {
+      const drafts = readJsonStorage(ADMIN_QUESTION_DRAFT_KEY, null);
+      return drafts && typeof drafts === 'object'
+        ? normalizeQuestionSets(drafts)
+        : {};
+    }
+
+    function inferRoundFromQuestionText(question) {
+      const normalizedQuestion = normalizeQuestionText(question);
+      if (!normalizedQuestion) return '';
+
+      for (const [round, items] of Object.entries(cachedQuestions || {})) {
+        if (!Array.isArray(items)) continue;
+        const matched = items.some((item) => normalizeQuestionText(item) === normalizedQuestion);
+        if (matched) {
+          return historyHelpers?.normalizeRound?.(round) || round;
+        }
+      }
+
+      if (/(write|code|algorithm|complexity|array|string|linked list|stack|queue|binary search|dynamic programming|recursion)/i.test(normalizedQuestion)) {
+        return 'coding';
+      }
+
+      if (/(tell me about a time|describe a time|challenge you faced|conflict|teamwork|stress|failure|leadership|feedback|criticism|pressure)/i.test(normalizedQuestion)) {
+        return 'behaviour';
+      }
+
+      if (/(yourself|strength|weakness|why should we hire you|why do you want|career|salary|five years|motivat|company)/i.test(normalizedQuestion)) {
+        return 'hr';
+      }
+
+      if (/(oop|api|dbms|database|sql|nosql|rest|cloud|authentication|authorization|network|operating system|normalization|docker|kubernetes|microservice)/i.test(normalizedQuestion)) {
+        return 'technical';
+      }
+
+      return '';
+    }
+
+    function getDisplayRound(item) {
+      const explicitRound = historyHelpers?.normalizeRound?.(item?.round) || 'general';
+      const inferredRound = inferRoundFromQuestionText(item?.question);
+
+      if (inferredRound && (explicitRound === 'general' || (explicitRound === 'behaviour' && inferredRound !== 'behaviour'))) {
+        return inferredRound;
+      }
+
+      return explicitRound;
+    }
+
+    function getCachedUsers() {
+      const cachedUsers = readJsonStorage(ADMIN_USERS_CACHE_KEY, []);
+      return Array.isArray(cachedUsers) ? cachedUsers : [];
+    }
+
+    function getFallbackUsers() {
+      const cachedUsers = getCachedUsers();
+      if (cachedUsers.length) return cachedUsers;
+
+      const currentUser = getCurrentUser();
+      if (currentUser && currentUser.email) {
+        return [{
+          username: currentUser.username || 'Admin User',
+          email: currentUser.email,
+          _id: currentUser.id || currentUser._id || 'current-admin'
+        }];
+      }
+
+      if (isPreviewAdminAccess()) {
+        return [{
+          username: 'Preview Admin',
+          email: window.PrepGenieAccess?.ADMIN_EMAIL || 'hasiniappikatla11@gmail.com',
+          _id: 'preview-admin'
+        }];
+      }
+
+      return [];
+    }
+
+    function getFallbackHistory() {
+      const cachedHistory = readJsonStorage(ADMIN_HISTORY_CACHE_KEY, []);
+      if (Array.isArray(cachedHistory) && cachedHistory.length) {
+        return cachedHistory;
+      }
+
+      return readLocalSessionHistory();
+    }
+
+    function getFallbackQuestionSets() {
+      return normalizeQuestionSets(readJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, DEFAULT_QUESTION_SETS));
+    }
+
+    function renderUsersTable(users, note = '') {
+      const target = document.getElementById('usersWrap');
+      const noteMarkup = note ? `<div class="empty-state" style="margin-bottom: 16px;">${note}</div>` : '';
+
+      if (!Array.isArray(users) || !users.length) {
+        target.innerHTML = `${noteMarkup}<div class="empty-state">No registered users found.</div>`;
+        return;
+      }
+
+      target.innerHTML = `
+        ${noteMarkup}
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Username</th>
+                <th>Email</th>
+                <th>User ID</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${users.map((user) => `
+                <tr>
+                  <td>${user.username || '-'}</td>
+                  <td>${user.email || '-'}</td>
+                  <td>${user._id || user.id || '-'}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function renderHistoryTable(history, note = '') {
+      const target = document.getElementById('historyWrap');
+      const items = Array.isArray(history) ? history : [];
+      const noteMarkup = note ? `<div class="empty-state" style="margin-bottom: 16px;">${note}</div>` : '';
+
+      if (!items.length) {
+        target.innerHTML = `${noteMarkup}<div class="empty-state">No session history has been saved yet. Analyze at least one answer in the Interview page to generate real session data.</div>`;
+        return;
+      }
+
+      target.innerHTML = `
+        ${noteMarkup}
+        <div class="table-wrap">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>User</th>
+                <th>Round</th>
+                <th>Score</th>
+                <th>Stress</th>
+                <th>Posture</th>
+                <th>Emotion</th>
+                <th>Voice Emotion</th>
+                <th>Date</th>
+                <th>Suggestion</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${[...items].reverse().map((item) => {
+                const displayRound = getDisplayRound(item);
+                return `
+                <tr>
+                  <td>${item.username || item.userEmail || 'Member'}</td>
+                  <td><span class="pill">${roundLabel(displayRound)}</span></td>
+                  <td>${item.score ?? '-'}</td>
+                  <td>${item.stress || '-'}</td>
+                  <td>${item.posture || '-'}</td>
+                  <td>${item.emotion || '-'}</td>
+                  <td>${item.voiceEmotion || item.voiceEmotionSource || '-'}</td>
+                  <td>${formatSessionDate(item.date)}</td>
+                  <td>${item.suggestion || 'No suggestion saved'}</td>
+                </tr>
+              `;
+              }).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function readLocalSupportQueue() {
+      const items = readJsonStorage(SUPPORT_QUEUE_KEY, []);
+      if (!Array.isArray(items)) return [];
+
+      return items.map((item) => ({
+        id: item.id || '',
+        name: item.name || '',
+        email: item.email || '',
+        subject: item.subject || '',
+        message: item.message || '',
+        createdAt: item.createdAt || '',
+        source: 'queued-local',
+        deliveryStatus: 'Queued'
+      }));
+    }
+
+    function mergeContacts(remoteItems, localItems) {
+      const combined = [...(Array.isArray(remoteItems) ? remoteItems : []), ...localItems];
+      const seen = new Set();
+
+      return combined
+        .filter((item) => {
+          const key = item.id || [item.email, item.subject, item.message, item.createdAt].join('|');
+          if (seen.has(key)) return false;
+          seen.add(key);
+          return true;
+        })
+        .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+    }
+
+    function readLocalSessionHistory() {
+      try {
+        const currentUser = getCurrentUser();
+        const stored = JSON.parse(localStorage.getItem('reportHistory')) || [];
+        return stored.map((item, index) => ({
+          sessionId: item.sessionId || `${item.round || 'general'}-${index}-${new Date(item.date || Date.now()).getTime()}`,
+          userId: currentUser?.id || currentUser?._id || '',
+          userEmail: item.userEmail || currentUser?.email || '',
+          username: item.username || currentUser?.username || '',
+          score: Number(item.score) || 0,
+          feedback: parseFeedback(item.feedback),
+          suggestion: item.suggestion || '',
+          round: item.round || 'general',
+          question: item.question || '',
+          answer: item.answer || '',
+          stress: item.stress || '',
+          stressDetail: item.stressDetail || '',
+          posture: item.posture || '',
+          postureDetail: item.postureDetail || '',
+          emotion: item.emotion || '',
+          emotionDetail: item.emotionDetail || '',
+          voiceEmotion: item.voiceEmotion || '',
+          voiceEmotionDetail: item.voiceEmotionDetail || '',
+          voiceEmotionSource: item.voiceEmotionSource || '',
+          analysisSource: item.analysisSource || 'local',
+          sensorSnapshot: item.sensorSnapshot || null,
+          durationSeconds: Number(item.durationSeconds) || 0,
+          date: item.date || new Date(Date.now() - index * 60000).toISOString()
+        }));
+      } catch (error) {
+        return [];
+      }
+    }
+
+    async function syncLocalSessionsToBackend() {
+      const localSessions = readLocalSessionHistory();
+      if (!localSessions.length) return;
+
+      await Promise.allSettled(localSessions.map((session) => fetchJson('/history/save', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(session)
+      }, 5000)));
+    }
+
+    async function loadUsers() {
+      const target = document.getElementById('usersWrap');
+      target.innerHTML = '<div class="empty-state">Loading users...</div>';
+
+      try {
+        const users = await fetchJson('/admin/users');
+        markBackendOnline('users endpoint reachable');
+        document.getElementById('userCount').textContent = users.length;
+        writeJsonStorage(ADMIN_USERS_CACHE_KEY, users);
+        renderUsersTable(users);
+      } catch (error) {
+        const fallbackUsers = getFallbackUsers();
+        document.getElementById('userCount').textContent = fallbackUsers.length;
+        renderUsersTable(
+          fallbackUsers,
+          fallbackUsers.length
+            ? 'Backend users are currently unavailable. Showing cached or local admin-visible users.'
+            : 'Unable to load users from the backend.'
+        );
+      }
+    }
+    window.loadUsers = loadUsers;
+
+    async function loadBackendStatus() {
+      try {
+        const health = await fetchJson('/health', {}, 4000);
+        setApiStatus(`Backend ready • ${health.storageMode || 'unknown'} storage`, true);
+      } catch (error) {
+        try {
+          await fetchJson('/help/owner', {}, 4000);
+          markBackendOnline('API reachable');
+        } catch (_fallbackError) {
+          setApiStatus('Backend offline', false);
+        }
+      }
+    }
+
+    async function loadHistory() {
+      const target = document.getElementById('historyWrap');
+      target.innerHTML = '<div class="empty-state">Loading session history...</div>';
+
+      try {
+        await syncLocalSessionsToBackend();
+        const history = await fetchJson('/admin/history');
+        markBackendOnline('history endpoint reachable');
+        document.getElementById('historyCount').textContent = history.length;
+        writeJsonStorage(ADMIN_HISTORY_CACHE_KEY, history);
+        renderHistoryTable(history);
+      } catch (error) {
+        const fallbackHistory = getFallbackHistory();
+        document.getElementById('historyCount').textContent = fallbackHistory.length;
+        renderHistoryTable(
+          fallbackHistory,
+          fallbackHistory.length
+            ? 'Backend session history is currently unavailable. Showing cached or local session data.'
+            : 'Unable to load session history from the backend.'
+        );
+      }
+    }
+    window.loadHistory = loadHistory;
+
+    async function loadIoTFeed() {
+      const statusEl = document.getElementById('iotAdminStatus');
+      const heartRateEl = document.getElementById('iotAdminHeartRate');
+      const tempEl = document.getElementById('iotAdminTemp');
+      const noteEl = document.getElementById('iotAdminNote');
+      const packetsWrap = document.getElementById('iotPacketsWrap');
+
+      if (!window.PrepGenieIoT) {
+        noteEl.textContent = 'Live IoT helper is unavailable on this page.';
+        return;
+      }
+
+      packetsWrap.innerHTML = '<div class="empty-state">Loading ESP32 packets...</div>';
+
+      try {
+        const summary = await window.PrepGenieIoT.getSummary(12);
+        const live = summary.live;
+        const online = window.PrepGenieIoT.isConnected(live);
+
+        statusEl.textContent = online ? 'Live' : 'Offline';
+        heartRateEl.textContent = window.PrepGenieIoT.formatHeartRate(live);
+        tempEl.textContent = window.PrepGenieIoT.formatTemperature(live);
+        noteEl.textContent = online
+          ? `${window.PrepGenieIoT.buildStatusText(live)} Last packet ${window.PrepGenieIoT.formatLastSeen(live.updatedAt)}.`
+          : `Sensor offline. Last packet ${window.PrepGenieIoT.formatLastSeen(live && live.updatedAt)}.`;
+
+        if (!summary.recent || !summary.recent.length) {
+          packetsWrap.innerHTML = '<div class="empty-state">No live packets have been stored yet.</div>';
+          return;
+        }
+
+        packetsWrap.innerHTML = `
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Time</th>
+                  <th>Heart Rate</th>
+                  <th>Posture</th>
+                  <th>Movement</th>
+                  <th>Signal</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${[...summary.recent].reverse().slice(0, 8).map((item) => `
+                  <tr>
+                    <td>${item.updatedAt ? new Date(item.updatedAt).toLocaleString() : '-'}</td>
+                    <td>${item.heartRateBpm ? `${Math.round(item.heartRateBpm)} BPM` : '--'}</td>
+                    <td>${item.posture || '-'}</td>
+                    <td>${item.movementScore != null ? `${Math.round(item.movementScore)}%` : '--'}</td>
+                    <td>${item.signalQuality || '-'}</td>
+                    <td>${item.summary || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (error) {
+        statusEl.textContent = 'Offline';
+        heartRateEl.textContent = '--';
+        tempEl.textContent = '--';
+        noteEl.textContent = 'Unable to load live ESP32 packets from the backend.';
+        packetsWrap.innerHTML = '<div class="empty-state">Live IoT packets could not be loaded.</div>';
+      }
+    }
+    window.loadIoTFeed = loadIoTFeed;
+
+    async function loadContacts() {
+      const target = document.getElementById('contactsWrap');
+      target.innerHTML = '<div class="empty-state">Loading support inbox...</div>';
+      const localItems = readLocalSupportQueue();
+
+      try {
+        const remoteItems = await fetchJson('/help/messages');
+        markBackendOnline('support inbox reachable');
+        const items = mergeContacts(remoteItems, localItems);
+        document.getElementById('contactCount').textContent = items.length;
+
+        if (!items || !items.length) {
+          renderEmpty('contactsWrap', 'No support requests have been received yet.');
+          return;
+        }
+
+        target.innerHTML = `
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map((item) => `
+                  <tr>
+                    <td>${item.name || '-'}</td>
+                    <td>${item.email || '-'}</td>
+                    <td>${item.subject || '-'}</td>
+                    <td>${item.message || '-'}</td>
+                    <td>${item.deliveryStatus || 'Delivered'}</td>
+                    <td>${item.createdAt ? new Date(item.createdAt).toLocaleString() : '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      } catch (error) {
+        const items = mergeContacts([], localItems);
+        document.getElementById('contactCount').textContent = items.length;
+
+        if (!items.length) {
+          renderEmpty('contactsWrap', 'Unable to load support requests from the backend, and no local queued requests were found.');
+          return;
+        }
+
+        target.innerHTML = `
+          <div class="empty-state" style="margin-bottom: 16px;">Backend inbox is currently unavailable. Showing locally queued support requests saved on this device.</div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Subject</th>
+                  <th>Message</th>
+                  <th>Status</th>
+                  <th>Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items.map((item) => `
+                  <tr>
+                    <td>${item.name || '-'}</td>
+                    <td>${item.email || '-'}</td>
+                    <td>${item.subject || '-'}</td>
+                    <td>${item.message || '-'}</td>
+                    <td>${item.deliveryStatus || 'Queued'}</td>
+                    <td>${item.createdAt ? new Date(item.createdAt).toLocaleString() : '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        `;
+      }
+    }
+    window.loadContacts = loadContacts;
+
+    function renderQuestionPreview(type, items, options = {}) {
+      const preview = document.getElementById('questionPreview');
+      const title = options.title || `${type} Questions`;
+      const emptyMessage = options.emptyMessage || 'No questions in this set.';
+      preview.innerHTML = `
+        <table class="table">
+          <thead>
+            <tr>
+              <th>${title} (${items.length})</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${items.length ? items.map((item, index) => `<tr><td>${index + 1}. ${item}</td></tr>`).join('') : `<tr><td>${emptyMessage}</td></tr>`}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function getEditorQuestionLines() {
+      const editor = document.getElementById('questionEditor');
+      if (!editor) return [];
+
+      return editor.value
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+    }
+
+    function updateQuestionEditorPreview() {
+      const type = document.getElementById('questionType').value;
+
+      if (!questionEditorDirty) {
+        renderQuestionPreview(type, [], {
+          title: `${type} Edited Questions`,
+          emptyMessage: 'Edited questions will appear here when you change the question bank editor.'
+        });
+        return;
+      }
+
+      renderQuestionPreview(type, getEditorQuestionLines(), {
+        title: `${type} Edited Questions`,
+        emptyMessage: 'Edited questions will appear here when you change the question bank editor.'
+      });
+    }
+
+    async function loadQuestions() {
+      try {
+        cachedQuestions = normalizeQuestionSets(await fetchJson('/admin/questions'));
+        markBackendOnline('question bank reachable');
+        document.getElementById('questionSetCount').textContent = getTotalQuestionCount(cachedQuestions);
+        writeJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, cachedQuestions);
+        clearJsonStorage(ADMIN_QUESTION_DRAFT_KEY);
+        loadQuestionEditor();
+        const currentHistory = readJsonStorage(ADMIN_HISTORY_CACHE_KEY, []);
+        if (Array.isArray(currentHistory) && currentHistory.length) {
+          renderHistoryTable(currentHistory);
+        }
+      } catch (error) {
+        let questionStatus = 'Backend question bank is unavailable. Showing cached or local question data.';
+        const localDrafts = getQuestionDrafts();
+
+        if (hasAnyQuestions(localDrafts)) {
+          cachedQuestions = localDrafts;
+          questionStatus = 'Loaded your locally saved question bank draft. Backend sync is currently unavailable.';
+        } else {
+          const bundledQuestions = getBundledLocalQuestionBank();
+          if (hasAnyQuestions(bundledQuestions)) {
+            cachedQuestions = bundledQuestions;
+            writeJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, cachedQuestions);
+            questionStatus = 'Loaded the bundled local question bank for editing. Backend sync is currently unavailable.';
+          } else {
+            try {
+              cachedQuestions = await loadLocalQuestionBankFile();
+              writeJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, cachedQuestions);
+              questionStatus = 'Loaded the bundled local question bank for editing. Backend sync is currently unavailable.';
+            } catch (_localFileError) {
+              cachedQuestions = getFallbackQuestionSets();
+              questionStatus = 'Loaded cached question bank data. Backend sync is currently unavailable.';
+            }
+          }
+        }
+
+        document.getElementById('questionSetCount').textContent = getTotalQuestionCount(cachedQuestions);
+        loadQuestionEditor();
+        const currentHistory = readJsonStorage(ADMIN_HISTORY_CACHE_KEY, []);
+        if (Array.isArray(currentHistory) && currentHistory.length) {
+          renderHistoryTable(currentHistory);
+        }
+        document.getElementById('questionStatus').textContent = questionStatus;
+      }
+    }
+    window.loadQuestions = loadQuestions;
+
+    function loadQuestionEditor() {
+      const type = document.getElementById('questionType').value;
+      const items = Array.isArray(cachedQuestions[type]) ? cachedQuestions[type] : [];
+      document.getElementById('questionEditor').value = items.join('\n');
+      questionEditorDirty = false;
+      document.getElementById('questionStatus').textContent = `Loaded ${items.length} question(s) for ${type}.`;
+      updateQuestionEditorPreview();
+    }
+    window.loadQuestionEditor = loadQuestionEditor;
+
+    async function saveQuestions() {
+      const type = document.getElementById('questionType').value;
+      const questions = document.getElementById('questionEditor').value
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .filter(Boolean);
+
+      document.getElementById('questionStatus').textContent = 'Saving questions...';
+
+      try {
+        const result = await fetchJson(`/admin/questions/${type}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ questions })
+        });
+
+        cachedQuestions[type] = result.questions || questions;
+        writeJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, cachedQuestions);
+        clearJsonStorage(ADMIN_QUESTION_DRAFT_KEY);
+        document.getElementById('questionSetCount').textContent = getTotalQuestionCount(cachedQuestions);
+        document.getElementById('questionStatus').textContent = `Saved ${questions.length} question(s) to ${type}.`;
+        questionEditorDirty = true;
+        updateQuestionEditorPreview();
+      } catch (error) {
+        cachedQuestions[type] = questions;
+        writeJsonStorage(ADMIN_QUESTIONS_CACHE_KEY, cachedQuestions);
+        writeJsonStorage(ADMIN_QUESTION_DRAFT_KEY, cachedQuestions);
+        document.getElementById('questionSetCount').textContent = getTotalQuestionCount(cachedQuestions);
+        document.getElementById('questionStatus').textContent = `Backend unavailable. Saved ${questions.length} question(s) locally for ${type}. Start the backend later to sync them to the server file.`;
+        questionEditorDirty = true;
+        updateQuestionEditorPreview();
+      }
+    }
+    window.saveQuestions = saveQuestions;
+
+    async function refreshAllData(showToast = true) {
+      const results = await Promise.allSettled([
+        loadBackendStatus(),
+        loadUsers(),
+        loadHistory(),
+        loadQuestions(),
+        loadIoTFeed(),
+        loadContacts()
+      ]);
+
+      const failed = results.filter((result) => result.status === 'rejected').length;
+      if (showToast) {
+        showAdminToast(failed ? 'Admin data refreshed with some unavailable sections.' : 'Admin data refreshed successfully.');
+      }
+    }
+    window.refreshAllData = refreshAllData;
+
+    switchTab('users', { scroll: false });
+
+    document.getElementById('questionEditor')?.addEventListener('input', () => {
+      questionEditorDirty = true;
+      updateQuestionEditorPreview();
+    });
+
+    if (accessGranted !== false && guardAdminPage()) {
+      refreshAllData(false).catch((error) => {
+        console.error('Initial admin load error:', error);
+      });
+    }
+  </script>
+</body>
+</html>
+
+
+

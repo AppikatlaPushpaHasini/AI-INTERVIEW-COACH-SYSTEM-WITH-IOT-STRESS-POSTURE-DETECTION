@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#138a52">
+  <meta name="description" content="PrepGenie support desk for owner contact, support inbox, and product help.">
+  <title>PrepGenie Help</title>
+  <link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    :root {
+      --bg: #f3f7f4;
+      --panel: #ffffff;
+      --panel-soft: #eef7f0;
+      --text: #163424;
+      --muted: #6b8275;
+      --primary: #138a52;
+      --primary-dark: #0d6038;
+      --border: rgba(19, 83, 49, 0.1);
+      --shadow: 0 18px 45px rgba(17, 79, 47, 0.08);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(19, 138, 82, 0.14), transparent 24%),
+        linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+      color: var(--text);
+      display: flex;
+    }
+
+    body.dark {
+      --bg: #101711;
+      --panel: #17211b;
+      --panel-soft: #1d2a22;
+      --text: #eef7f0;
+      --muted: #acc0b3;
+      --border: rgba(123, 226, 166, 0.12);
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+    }
+
+    .sidebar {
+      width: 248px;
+      background: linear-gradient(180deg, #a8d5ba 0%, #90c8a6 100%);
+      color: #0e1311;
+      padding: 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    body.dark .sidebar {
+      background: linear-gradient(180deg, #1f3227 0%, #18261e 100%);
+      color: var(--text);
+    }
+
+    .sidebar h2 {
+      display: grid;
+      grid-template-columns: 64px minmax(0, 1fr);
+      align-items: center;
+      gap: 14px;
+      padding: 0;
+      margin-bottom: 24px;
+    }
+
+    .sidebar-logo {
+      width: 64px;
+      height: 64px;
+      object-fit: contain;
+      filter: drop-shadow(0 12px 22px rgba(17, 79, 47, 0.16));
+      flex-shrink: 0;
+    }
+
+    body.dark .sidebar-logo {
+      filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26));
+    }
+
+    .sidebar-brand-lockup {
+      min-width: 0;
+      display: grid;
+      gap: 4px;
+    }
+
+    .sidebar-brand-wordmark {
+      min-width: 0;
+      display: inline-flex;
+      align-items: center;
+      flex-wrap: nowrap;
+      gap: 0;
+      white-space: nowrap;
+      font-size: 23px;
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: 0.01em;
+      color: #103425;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+    }
+
+    .sidebar-brand-accent {
+      color: var(--primary-dark);
+      text-shadow: 0 0 18px rgba(19, 138, 82, 0.18);
+    }
+
+    .sidebar-brand-tag {
+      width: fit-content;
+      max-width: 100%;
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.32);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      color: rgba(14, 19, 17, 0.78);
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    body.dark .sidebar-brand-wordmark {
+      color: #f2fff8;
+    }
+
+    body.dark .sidebar-brand-accent {
+      color: #8cf0b4;
+      text-shadow: 0 0 22px rgba(123, 226, 166, 0.22);
+    }
+
+    body.dark .sidebar-brand-tag {
+      background: rgba(123, 226, 166, 0.14);
+      border-color: rgba(123, 226, 166, 0.18);
+      color: rgba(242, 255, 248, 0.84);
+    }
+
+    .sidebar button {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: inherit;
+      text-align: left;
+      padding: 12px 14px;
+      margin-bottom: 8px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .sidebar button:hover,
+    .sidebar button.active {
+      background: rgba(255, 255, 255, 0.24);
+    }
+
+    .page {
+      flex: 1;
+      padding: 28px;
+      overflow-y: auto;
+    }
+
+    .hero,
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 24px;
+      box-shadow: var(--shadow);
+    }
+
+    .hero {
+      padding: 28px;
+      margin-bottom: 22px;
+      background:
+        linear-gradient(135deg, rgba(19, 138, 82, 0.12), rgba(255,255,255,0) 55%),
+        var(--panel);
+    }
+
+    .hero h1 {
+      font-size: clamp(28px, 4vw, 42px);
+      margin-bottom: 10px;
+    }
+
+    .hero p {
+      color: var(--muted);
+      line-height: 1.6;
+      max-width: 760px;
+    }
+
+    .hero-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+
+    .hero-meta {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 20px;
+    }
+
+    .hero-stat {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .hero-stat strong {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .hero-stat span {
+      display: block;
+      font-size: 17px;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+
+    .service-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(19, 138, 82, 0.1);
+      color: var(--primary-dark);
+      font-size: 13px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .service-pill::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: currentColor;
+      opacity: 0.85;
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(320px, 0.9fr) minmax(0, 1.1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .card {
+      padding: 22px;
+    }
+
+    .section-tag {
+      display: inline-flex;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(19, 138, 82, 0.1);
+      color: var(--primary-dark);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .owner-name {
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+
+    .owner-role,
+    .card p,
+    .contact-item span,
+    .status-note {
+      color: var(--muted);
+      line-height: 1.6;
+    }
+
+    .contact-list,
+    .info-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .contact-item,
+    .info-item {
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .contact-item strong,
+    .info-item strong {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 15px;
+    }
+
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+    }
+
+    .button {
+      border: none;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    .button.primary {
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .button.secondary {
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+    }
+
+    .field-group {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .field-label {
+      display: grid;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+    }
+
+    input,
+    textarea {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 13px 14px;
+      font-size: 15px;
+      background: transparent;
+      color: var(--text);
+    }
+
+    textarea {
+      min-height: 180px;
+      resize: vertical;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+    }
+
+    .status-note {
+      min-height: 22px;
+      margin-top: 14px;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .request-footnote {
+      margin-top: 14px;
+      color: var(--muted);
+      line-height: 1.55;
+      font-size: 13px;
+    }
+
+    .request-footnote strong {
+      color: var(--text);
+    }
+
+    .process-list {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+    }
+
+    .process-card {
+      grid-column: 1 / -1;
+    }
+
+    .process-item {
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 12px;
+      align-items: start;
+      background: var(--panel-soft);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 16px;
+    }
+
+    .process-number {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 13px;
+      font-weight: 700;
+      background: var(--primary);
+      color: #fff;
+    }
+
+    .process-copy strong {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .process-copy p {
+      color: var(--muted);
+      line-height: 1.55;
+    }
+
+    @media (max-width: 980px) {
+      .layout {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-meta {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 780px) {
+      body {
+        display: block;
+      }
+
+      .sidebar {
+        width: 100%;
+      }
+
+      .page {
+        padding: 18px;
+      }
+
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-main">
+      <div class="sidebar-topbar">
+        <div class="sidebar-section-label">Workspace</div>
+        <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+      </div>
+      <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+      <div class="sidebar-group">
+        <button type="button" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+        <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+        <button type="button" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+        <button type="button" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="helpNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+        <button type="button" id="adminNavBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+        <button type="button" class="active" data-short="HP" title="Help" onclick="go('help')">Help</button>
+      </div>
+    </div>
+    <div class="sidebar-foot">
+      <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+    </div>
+  </aside>
+
+  <main class="page">
+    <section class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="section-tag">Support Desk</div>
+          <h1>Owner Support And Contact</h1>
+          <p>Reach the project owner through a clean, professional support desk. Requests are routed to the admin inbox, and if the backend is temporarily unavailable your message is still preserved safely for follow-up.</p>
+        </div>
+        <div id="servicePill" class="service-pill">Checking support inbox</div>
+      </div>
+      <div class="hero-meta">
+        <div class="hero-stat">
+          <strong>Owner</strong>
+          <span id="ownerHeroName">Hasini Appikatla</span>
+        </div>
+        <div class="hero-stat">
+          <strong>Primary Channel</strong>
+          <span id="ownerHeroChannel">Direct owner inbox</span>
+        </div>
+        <div class="hero-stat">
+          <strong>Response Window</strong>
+          <span id="supportWindow">Within 24 hours</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <article class="card">
+        <div class="section-tag">Owner</div>
+        <h2 id="ownerName" class="owner-name">Hasini Appikatla</h2>
+        <div class="owner-role">Project Owner and Admin Contact</div>
+        <div class="contact-list">
+          <div class="contact-item">
+            <strong>Owner Email</strong>
+            <span id="ownerEmail">hasiniappikatla11@gmail.com</span>
+          </div>
+          <div class="contact-item">
+            <strong>Primary Contact</strong>
+            <span id="ownerContact">Email support and admin inbox</span>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="button primary" type="button" onclick="openOwnerEmail()">Email Owner</button>
+          <button class="button secondary" type="button" onclick="go('dashboard')">Back To Dashboard</button>
+        </div>
+        <div class="info-list">
+          <div class="info-item">
+            <strong>How it works</strong>
+            <p>When a user sends a support request from this page, it is stored in the backend and displayed in the admin inbox for the owner account. If the backend is temporarily offline, the request is queued safely on this device until the inbox connection returns.</p>
+          </div>
+          <div class="info-item">
+            <strong>Best use</strong>
+            <p>Use this page for account help, project issues, device support, interview workspace questions, and report concerns.</p>
+          </div>
+          <div class="info-item">
+            <strong>Support standard</strong>
+            <p>Keep the subject specific, describe the issue clearly, and include what page, device, or action caused the problem for faster resolution.</p>
+          </div>
+        </div>
+      </article>
+
+      <article class="card">
+        <div class="section-tag">Send Request</div>
+        <h2 style="font-size: 26px; margin-bottom: 8px;">Contact The Owner</h2>
+        <p>Send a direct support request. Your message will be stored for the owner, and you can also open your email app for an additional direct contact path.</p>
+
+        <div class="field-group">
+          <div class="form-row">
+            <label class="field-label">
+              <span>Your name</span>
+              <input id="supportName" placeholder="Enter your full name">
+            </label>
+            <label class="field-label">
+              <span>Your email</span>
+              <input id="supportEmail" placeholder="Enter your email address">
+            </label>
+          </div>
+          <label class="field-label">
+            <span>Subject</span>
+            <input id="supportSubject" placeholder="Example: Unable to submit interview answer">
+          </label>
+          <label class="field-label">
+            <span>Message</span>
+            <textarea id="supportMessage" placeholder="Write your message clearly here, including what happened, what you expected, and which page or device you used."></textarea>
+          </label>
+        </div>
+
+        <div class="actions">
+          <button class="button primary" type="button" onclick="sendSupportRequest()">Send Request</button>
+          <button class="button secondary" type="button" onclick="openOwnerEmail(true)">Open Email App</button>
+        </div>
+        <div id="supportStatus" class="status-note">Support messages sent here will appear in the admin inbox.</div>
+        <p class="request-footnote"><strong>Support note:</strong> Drafts are saved automatically while you type, and queued requests are retried when the support inbox reconnects.</p>
+      </article>
+
+      <article class="card process-card">
+        <div class="section-tag">Support Process</div>
+        <h2 style="font-size: 26px; margin-bottom: 8px;">What Happens Next</h2>
+        <p>Each request follows a clear review path so the owner can respond with context instead of losing issue details.</p>
+        <div class="process-list">
+          <div class="process-item">
+            <div class="process-number">1</div>
+            <div class="process-copy">
+              <strong>Capture</strong>
+              <p>Your request is stored in the support inbox. If the backend is unavailable, the page queues it locally instead of losing it.</p>
+            </div>
+          </div>
+          <div class="process-item">
+            <div class="process-number">2</div>
+            <div class="process-copy">
+              <strong>Review</strong>
+              <p>The owner can review the subject, message, sender details, and submission time directly from the admin portal.</p>
+            </div>
+          </div>
+          <div class="process-item">
+            <div class="process-number">3</div>
+            <div class="process-copy">
+              <strong>Follow-up</strong>
+              <p>For urgent cases, use the email option as well so the owner receives both the stored support record and your direct contact mail.</p>
+            </div>
+          </div>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <script src="js/theme.js"></script>
+  <script src="js/apiConfig.js"></script>
+  <script src="js/sessionHistory.js"></script>
+  <script src="js/accessGuard.js"></script>
+  <script src="js/notifications.js"></script>
+  <script src="js/sidebar.js"></script>
+  <script>
+    const API_URL = window.PrepGenieConfig?.API_BASE || "http://localhost:5000/api";
+    const SUPPORT_QUEUE_KEY = "prepgenieSupportQueue";
+    const SUPPORT_DRAFT_KEY = "prepgenieSupportDraft";
+    let supportBackendHealthy = false;
+    let supportEmailDeliveryEnabled = false;
+    let supportMailerAvailable = false;
+    const OWNER = {
+      name: "Hasini Appikatla",
+      email: "hasiniappikatla11@gmail.com",
+      contact: "Email support and admin inbox"
+    };
+
+    window.PrepGenieAccess?.requireAuth();
+
+    function go(page) {
+      window.location.href = `${page}.html`;
+    }
+
+    function setSupportStatus(message, isError = false) {
+      const status = document.getElementById("supportStatus");
+      if (!status) return;
+      status.textContent = message;
+      status.style.color = isError ? "#dc2626" : "#138a52";
+    }
+
+    function getCurrentUser() {
+      return window.PrepGenieAccess?.getCurrentUser?.() || null;
+    }
+
+    function applyOwnerUi() {
+      document.getElementById("ownerName").textContent = OWNER.name;
+      document.getElementById("ownerEmail").textContent = OWNER.email;
+      document.getElementById("ownerContact").textContent = OWNER.contact;
+      document.getElementById("ownerHeroName").textContent = OWNER.name;
+      document.getElementById("ownerHeroChannel").textContent = OWNER.contact;
+
+      const currentUser = getCurrentUser();
+      if (currentUser) {
+        const nameInput = document.getElementById("supportName");
+        const emailInput = document.getElementById("supportEmail");
+        if (nameInput && !nameInput.value) nameInput.value = currentUser.username || "";
+        if (emailInput && !emailInput.value) emailInput.value = currentUser.email || "";
+      }
+
+      const adminNavBtn = document.getElementById("adminNavBtn");
+      if (adminNavBtn) {
+        adminNavBtn.style.display = window.PrepGenieAccess?.isAdminUser?.() ? "block" : "none";
+      }
+    }
+
+    function setServicePill(message, isHealthy = true) {
+      const pill = document.getElementById("servicePill");
+      if (!pill) return;
+      pill.textContent = message;
+      pill.style.background = isHealthy ? "rgba(19, 138, 82, 0.1)" : "rgba(245, 158, 11, 0.14)";
+      pill.style.color = isHealthy ? "var(--primary-dark)" : "#a16207";
+    }
+
+    function updateSupportChannelPill() {
+      if (!supportBackendHealthy) {
+        setServicePill("Direct inbox fallback available", false);
+        return;
+      }
+
+      if (supportEmailDeliveryEnabled) {
+        setServicePill("Support inbox connected • Email active", true);
+        return;
+      }
+
+      if (supportMailerAvailable) {
+        setServicePill("Support inbox connected • Email setup needed", false);
+        return;
+      }
+
+      setServicePill("Support inbox connected • Admin inbox only", false);
+    }
+
+    function readJsonStorage(key, fallback) {
+      try {
+        const raw = localStorage.getItem(key);
+        return raw ? JSON.parse(raw) : fallback;
+      } catch (error) {
+        return fallback;
+      }
+    }
+
+    function writeJsonStorage(key, value) {
+      localStorage.setItem(key, JSON.stringify(value));
+    }
+
+    function readSupportQueue() {
+      const items = readJsonStorage(SUPPORT_QUEUE_KEY, []);
+      return Array.isArray(items) ? items : [];
+    }
+
+    function saveSupportQueue(items) {
+      writeJsonStorage(SUPPORT_QUEUE_KEY, items);
+    }
+
+    function queueSupportRequest(item) {
+      const queue = readSupportQueue();
+      queue.unshift(item);
+      saveSupportQueue(queue.slice(0, 50));
+    }
+
+    function saveDraft() {
+      const draft = {
+        name: document.getElementById("supportName")?.value || "",
+        email: document.getElementById("supportEmail")?.value || "",
+        subject: document.getElementById("supportSubject")?.value || "",
+        message: document.getElementById("supportMessage")?.value || ""
+      };
+      writeJsonStorage(SUPPORT_DRAFT_KEY, draft);
+    }
+
+    function restoreDraft() {
+      const draft = readJsonStorage(SUPPORT_DRAFT_KEY, null);
+      if (!draft) return;
+
+      const fields = {
+        supportName: draft.name || "",
+        supportEmail: draft.email || "",
+        supportSubject: draft.subject || "",
+        supportMessage: draft.message || ""
+      };
+
+      Object.entries(fields).forEach(([id, value]) => {
+        const element = document.getElementById(id);
+        if (element && !element.value) {
+          element.value = value;
+        }
+      });
+    }
+
+    function clearDraft() {
+      localStorage.removeItem(SUPPORT_DRAFT_KEY);
+    }
+
+    function clearFormAfterSend() {
+      document.getElementById("supportSubject").value = "";
+      document.getElementById("supportMessage").value = "";
+      clearDraft();
+    }
+
+    async function sendSupportPayload(payload) {
+      if (window.PrepGenieConfig?.fetchApiJson) {
+        return window.PrepGenieConfig.fetchApiJson("/help/contact", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(payload)
+        }, { timeoutMs: 6000 });
+      }
+
+      const response = await fetch(`${API_URL}/help/contact`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok) {
+        const message = data.message || "Unable to send your support request.";
+        const error = new Error(message);
+        error.responseStatus = response.status;
+        throw error;
+      }
+
+      return data;
+    }
+
+    async function flushQueuedSupportRequests() {
+      const queue = readSupportQueue();
+      if (!queue.length) {
+        updateSupportChannelPill();
+        return;
+      }
+
+      const remaining = [];
+      for (const item of queue) {
+        try {
+          await sendSupportPayload(item);
+          supportBackendHealthy = true;
+        } catch (error) {
+          if (!error.responseStatus || error.responseStatus >= 500) {
+            remaining.push(item);
+          }
+        }
+      }
+
+      saveSupportQueue(remaining);
+      if (remaining.length) {
+        setServicePill(`${remaining.length} queued request${remaining.length === 1 ? "" : "s"} waiting to sync`, false);
+      } else {
+        updateSupportChannelPill();
+      }
+    }
+
+    async function loadOwnerDetails() {
+      try {
+        const data = window.PrepGenieConfig?.fetchApiJson
+          ? await window.PrepGenieConfig.fetchApiJson("/help/owner", {}, { timeoutMs: 5000 })
+          : await fetch(`${API_URL}/help/owner`).then((response) => {
+            if (!response.ok) throw new Error("Owner endpoint unavailable");
+            return response.json();
+          });
+        supportBackendHealthy = true;
+        OWNER.name = data.name || OWNER.name;
+        OWNER.email = data.email || OWNER.email;
+        OWNER.contact = data.contact || OWNER.contact;
+        supportEmailDeliveryEnabled = Boolean(data.emailDeliveryEnabled);
+        supportMailerAvailable = Boolean(data.mailerAvailable);
+        updateSupportChannelPill();
+      } catch (error) {
+        supportBackendHealthy = false;
+        supportEmailDeliveryEnabled = false;
+        supportMailerAvailable = false;
+        updateSupportChannelPill();
+      }
+    }
+
+    function bindDraftPersistence() {
+      ["supportName", "supportEmail", "supportSubject", "supportMessage"].forEach((id) => {
+        const element = document.getElementById(id);
+        if (!element) return;
+        element.addEventListener("input", saveDraft);
+      });
+    }
+
+    function buildMailtoUrl(useFormValues = false) {
+      const subject = encodeURIComponent(useFormValues ? (document.getElementById("supportSubject")?.value || "PrepGenie support request") : "PrepGenie support request");
+      const body = encodeURIComponent(useFormValues ? (document.getElementById("supportMessage")?.value || "Hello, I need help with PrepGenie.") : "Hello, I need help with PrepGenie.");
+      return `mailto:${OWNER.email}?subject=${subject}&body=${body}`;
+    }
+
+    function openOwnerEmail(useFormValues = false) {
+      window.location.href = buildMailtoUrl(useFormValues);
+    }
+
+    async function sendSupportRequest() {
+      const name = String(document.getElementById("supportName")?.value || "").trim();
+      const email = String(document.getElementById("supportEmail")?.value || "").trim();
+      const subject = String(document.getElementById("supportSubject")?.value || "").trim();
+      const message = String(document.getElementById("supportMessage")?.value || "").trim();
+
+      if (!name || !email || !subject || !message) {
+        setSupportStatus("Please complete all support fields before sending.", true);
+        return;
+      }
+
+      const payload = {
+        id: `support-${Date.now()}`,
+        name,
+        email,
+        subject,
+        message,
+        createdAt: new Date().toISOString(),
+        source: "help-page"
+      };
+
+      try {
+        const data = await sendSupportPayload(payload);
+        supportBackendHealthy = true;
+        supportEmailDeliveryEnabled = Boolean(data.delivery?.delivered);
+        supportMailerAvailable = Boolean(data.delivery?.configured || data.delivery?.reason === "send_failed" || data.delivery?.reason === "mail_not_configured");
+        updateSupportChannelPill();
+        setSupportStatus(data.message || "Support request sent successfully.");
+        clearFormAfterSend();
+      } catch (error) {
+        const responseStatus = error.responseStatus || error.status || 0;
+        if (responseStatus && responseStatus < 500) {
+          setSupportStatus(error.message || "Unable to send your support request.", true);
+          return;
+        }
+
+        supportBackendHealthy = false;
+        queueSupportRequest(payload);
+        updateSupportChannelPill();
+        setSupportStatus("Backend support inbox is unavailable right now. Your request was saved on this device and will sync automatically when the connection returns.", false);
+        clearFormAfterSend();
+      }
+    }
+
+    async function initializeHelpPage() {
+      restoreDraft();
+      bindDraftPersistence();
+      await loadOwnerDetails();
+      applyOwnerUi();
+      await flushQueuedSupportRequests();
+    }
+
+    initializeHelpPage();
+  </script>
+</body>
+</html>

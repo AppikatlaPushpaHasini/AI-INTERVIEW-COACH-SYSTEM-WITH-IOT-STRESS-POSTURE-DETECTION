@@ -1,0 +1,5 @@
+Deprecated note file.
+
+Use `iot/docs/wiring.md` for the current wiring guide.
+Use `iot/esp32_advanced/esp32_advanced.ino` for the real ESP32 firmware.
+Use `iot/esp32_basic/esp32_basic.ino` for the serial hardware test.

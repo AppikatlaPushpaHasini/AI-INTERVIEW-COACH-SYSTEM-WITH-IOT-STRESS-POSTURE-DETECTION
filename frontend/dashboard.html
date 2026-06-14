@@ -1,0 +1,1227 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#138a52">
+    <meta name="description" content="PrepGenie dashboard for interview performance, live analytics, and coaching insights.">
+    <title>PrepGenie Dashboard</title>
+    <link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+    <link rel="stylesheet" href="css/style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #f3f7f4;
+            --panel: #ffffff;
+            --panel-soft: #eef7f0;
+            --text: #163424;
+            --muted: #698174;
+            --primary: #138a52;
+            --primary-dark: #0d6038;
+            --border: rgba(19, 83, 49, 0.1);
+            --shadow: 0 18px 45px rgba(17, 79, 47, 0.08);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at top right, rgba(19, 138, 82, 0.12), transparent 26%),
+                radial-gradient(circle at bottom left, rgba(19, 138, 82, 0.08), transparent 22%),
+                linear-gradient(180deg, #f8fbf8 0%, var(--bg) 100%);
+            color: var(--text);
+        }
+
+        body.dark {
+            --bg: #101711;
+            --panel: #17211b;
+            --panel-soft: #1d2a22;
+            --text: #eef7f0;
+            --muted: #acc0b3;
+            --border: rgba(123, 226, 166, 0.12);
+            --shadow: 0 18px 45px rgba(0, 0, 0, 0.22);
+        }
+
+        .sidebar {
+            width: 252px;
+            background: linear-gradient(180deg, #a8d5ba 0%, #90c8a6 100%);
+            color: #0e1311;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            position: sticky;
+            top: 0;
+            height: 100vh;
+            border-right: 1px solid rgba(19, 83, 49, 0.08);
+        }
+
+        body.dark .sidebar {
+            background: linear-gradient(180deg, #1f3227 0%, #18261e 100%);
+            color: var(--text);
+        }
+
+        .sidebar h2 {
+            display: grid;
+            grid-template-columns: 64px minmax(0, 1fr);
+            align-items: center;
+            gap: 14px;
+            padding: 0;
+            margin-bottom: 24px;
+        }
+
+        .sidebar-logo {
+            display: block;
+            width: 64px;
+            height: 64px;
+            object-fit: contain;
+            filter: drop-shadow(0 12px 22px rgba(17, 79, 47, 0.16));
+            flex-shrink: 0;
+        }
+
+        body.dark .sidebar-logo {
+            filter: drop-shadow(0 12px 22px rgba(0, 0, 0, 0.26));
+        }
+
+        .sidebar-brand-lockup {
+            min-width: 0;
+            display: grid;
+            gap: 4px;
+        }
+
+        .sidebar-brand-wordmark {
+            min-width: 0;
+            display: inline-flex;
+            align-items: center;
+            flex-wrap: nowrap;
+            gap: 0;
+            white-space: nowrap;
+            font-size: 25px;
+            line-height: 1;
+            font-weight: 900;
+            letter-spacing: 0.01em;
+            color: #103425;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, 0.25);
+        }
+
+        .sidebar-brand-accent {
+            color: var(--primary-dark);
+            text-shadow: 0 0 18px rgba(19, 138, 82, 0.18);
+        }
+
+        .sidebar-brand-tag {
+            width: fit-content;
+            max-width: 100%;
+            display: inline-flex;
+            align-items: center;
+            padding: 5px 10px;
+            border-radius: 999px;
+            background: rgba(255, 255, 255, 0.32);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: rgba(14, 19, 17, 0.78);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        body.dark .sidebar-brand-wordmark {
+            color: #f2fff8;
+        }
+
+        body.dark .sidebar-brand-accent {
+            color: #8cf0b4;
+            text-shadow: 0 0 22px rgba(123, 226, 166, 0.22);
+        }
+
+        body.dark .sidebar-brand-tag {
+            background: rgba(123, 226, 166, 0.14);
+            border-color: rgba(123, 226, 166, 0.18);
+            color: rgba(242, 255, 248, 0.84);
+        }
+
+        .sidebar-group {
+            display: grid;
+            gap: 6px;
+        }
+
+        .sidebar button {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: inherit;
+            text-align: left;
+            padding: 12px 14px;
+            margin-bottom: 2px;
+            font-size: 15px;
+            cursor: pointer;
+            border-radius: 12px;
+            transition: 0.2s ease;
+        }
+
+        .sidebar button:hover,
+        .sidebar button.active {
+            background: rgba(255, 255, 255, 0.24);
+        }
+
+        .sidebar-foot {
+            display: grid;
+            gap: 12px;
+        }
+
+        .account-chip {
+            background: rgba(255, 255, 255, 0.22);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        body.dark .account-chip {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .account-chip strong {
+            display: block;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            margin-bottom: 6px;
+        }
+
+        .account-chip span {
+            display: block;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .sidebar-notification-list {
+            display: grid;
+            gap: 8px;
+            margin-top: 8px;
+        }
+
+        .sidebar-notice {
+            background: rgba(255, 255, 255, 0.18);
+            border: 1px solid rgba(255, 255, 255, 0.16);
+            border-radius: 12px;
+            padding: 10px;
+            font-size: 12px;
+            line-height: 1.45;
+        }
+
+        body.dark .sidebar-notice {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .sidebar-notice strong {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        .sidebar-notice-body {
+            color: inherit;
+            opacity: 0.88;
+            margin-bottom: 6px;
+        }
+
+        .sidebar-notice-time {
+            display: block;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            opacity: 0.72;
+        }
+
+        .sidebar-notice.notification-alert {
+            border-left: 3px solid #dc2626;
+        }
+
+        .sidebar-notice.notification-warning {
+            border-left: 3px solid #f59e0b;
+        }
+
+        .sidebar-notice.notification-success {
+            border-left: 3px solid #138a52;
+        }
+
+        .sidebar-notice.notification-coach,
+        .sidebar-notice.notification-tip,
+        .sidebar-notice.notification-info {
+            border-left: 3px solid rgba(19, 138, 82, 0.65);
+        }
+
+        .sidebar-notice.notification-neutral {
+            border-left: 3px solid rgba(14, 19, 17, 0.24);
+        }
+
+        .page {
+            flex: 1;
+            display: grid;
+            align-content: start;
+            gap: clamp(20px, 2vw, 28px);
+            padding: clamp(20px, 2.6vw, 30px);
+            overflow-y: auto;
+        }
+
+        .topbar {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) auto;
+            align-items: start;
+            gap: 18px;
+        }
+
+        .hero-copy {
+            min-width: 0;
+        }
+
+        .section-kicker {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 7px 12px;
+            border-radius: 999px;
+            background: rgba(19, 138, 82, 0.10);
+            color: var(--primary-dark);
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            margin-bottom: 14px;
+        }
+
+        .topbar h1 {
+            font-size: clamp(28px, 4vw, 42px);
+            margin-bottom: 10px;
+        }
+
+        .topbar p {
+            color: var(--muted);
+            line-height: 1.6;
+            max-width: 760px;
+        }
+
+        .top-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            align-content: flex-start;
+            justify-content: flex-end;
+            min-width: min(100%, 240px);
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .btn.primary {
+            background: var(--primary);
+            color: #fff;
+        }
+
+        .btn.secondary {
+            background: var(--panel);
+            color: var(--text);
+            border: 1px solid var(--border);
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: var(--shadow);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+        }
+
+        .card {
+            background: var(--panel);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .metric-card {
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 90px;
+            height: 90px;
+            background: radial-gradient(circle, rgba(19, 138, 82, 0.10), transparent 68%);
+            pointer-events: none;
+        }
+
+        .metric-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+            margin-bottom: 10px;
+        }
+
+        .metric-value {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .metric-note {
+            color: var(--muted);
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1.35fr) minmax(340px, 1fr);
+            gap: 20px;
+            align-items: start;
+        }
+
+        .content-column {
+            display: grid;
+            gap: 20px;
+            align-content: start;
+        }
+
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            align-items: start;
+        }
+
+        .panel {
+            padding: clamp(18px, 2vw, 22px);
+        }
+
+        .panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 14px;
+            margin-bottom: 16px;
+        }
+
+        .panel h2 {
+            font-size: 22px;
+        }
+
+        .panel-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .chart-wrap {
+            position: relative;
+            min-height: 320px;
+            height: clamp(320px, 38vw, 460px);
+        }
+
+        .insight-list,
+        .session-list,
+        .quick-list,
+        .analytics-grid {
+            display: grid;
+            gap: 12px;
+        }
+
+        .quick-list {
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        }
+
+        .insight-item,
+        .session-item,
+        .quick-item,
+        .analytics-stat,
+        .analytics-suggestion {
+            background: var(--panel-soft);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .insight-item strong,
+        .session-item strong,
+        .quick-item strong,
+        .analytics-stat strong {
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        .insight-item p,
+        .session-item p,
+        .quick-item p,
+        .analytics-suggestion {
+            color: var(--muted);
+            line-height: 1.55;
+        }
+
+        .analytics-grid {
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        }
+
+        .analytics-stat strong {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+            color: var(--muted);
+        }
+
+        .analytics-stat span {
+            font-size: 28px;
+            font-weight: 700;
+        }
+
+        .analytics-chart-wrap {
+            min-height: 240px;
+            height: clamp(240px, 28vw, 360px);
+            margin-top: 16px;
+            position: relative;
+        }
+
+        .quick-item .btn {
+            margin-top: 14px;
+            width: 100%;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            border-radius: 999px;
+            padding: 7px 12px;
+            background: rgba(19, 138, 82, 0.12);
+            color: var(--primary-dark);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            background: var(--panel-soft);
+            border-radius: 18px;
+            border: 1px solid var(--border);
+            padding: 18px;
+            color: var(--muted);
+            line-height: 1.6;
+        }
+
+        .popup {
+            position: fixed;
+            right: 24px;
+            bottom: 24px;
+            z-index: 1000;
+            background: #163424;
+            color: #fff;
+            border-radius: 14px;
+            padding: 12px 16px;
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.2);
+            max-width: 320px;
+            line-height: 1.5;
+        }
+
+        @media (max-width: 1220px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .detail-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 960px) {
+            .topbar {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 760px) {
+            body {
+                display: block;
+            }
+
+            .sidebar {
+                width: 100%;
+                height: auto;
+                position: static;
+            }
+
+            .page {
+                padding: 18px;
+            }
+
+            .summary-grid,
+            .analytics-grid,
+            .quick-list {
+                grid-template-columns: 1fr;
+            }
+
+            .topbar {
+                grid-template-columns: 1fr;
+            }
+
+            .panel-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .top-actions {
+                width: 100%;
+                min-width: 0;
+                justify-content: flex-start;
+            }
+        }
+</style>
+    <link rel="stylesheet" href="css/appSidebar.css">
+</head>
+<body>
+<aside class="sidebar">
+    <div class="sidebar-main">
+        <div class="sidebar-topbar">
+            <div class="sidebar-section-label">Workspace</div>
+            <button type="button" class="sidebar-toggle" aria-label="Toggle sidebar" title="Toggle sidebar"><span></span><span></span><span></span></button>
+        </div>
+        <h2><img class="sidebar-logo" src="assets/prepgenie-logo.svg" alt="PrepGenie logo"><span class="sidebar-brand-lockup"><span class="sidebar-brand-wordmark"><span>Prep</span><span class="sidebar-brand-accent">Genie</span></span><span class="sidebar-brand-tag">Interview AI</span></span></h2>
+        <div class="sidebar-group">
+            <button type="button" class="active" data-short="DB" title="Dashboard" onclick="go('dashboard')">Dashboard</button>
+            <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
+            <button type="button" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
+            <button type="button" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="dashboardNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
+            <button type="button" data-short="LG" title="Login / Register" onclick="go('index')">Login / Register</button>
+            <button type="button" id="adminNavBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
+            <button type="button" data-short="HP" title="Help" onclick="go('help')">Help</button>
+        </div>
+    </div>
+    <div class="sidebar-foot">
+        <div class="account-chip">
+            <strong>Current Access</strong>
+            <span id="sidebarAccountStatus">Guest mode. Sign in to load your tracked progress.</span>
+        </div>
+        <button type="button" id="themeBtn" data-short="TH" title="Theme" onclick="toggleTheme()">Theme</button>
+    </div>
+</aside>
+
+<main class="page">
+    <section class="topbar">
+        <div class="hero-copy">
+            <div class="section-kicker">Performance Overview</div>
+            <h1>Performance Dashboard</h1>
+            <p>See your latest interview performance, score trend, coaching insight, recent sessions, and live analytics in one place.</p>
+        </div>
+        <div class="top-actions">
+            <button class="btn secondary" onclick="handleDashboardRefresh()">Refresh</button>
+            <button class="btn primary" onclick="go('interview')">Start Practice</button>
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <article class="card metric-card">
+            <div class="metric-label">Latest Score</div>
+            <div class="metric-value" id="latestScore">0%</div>
+            <div class="metric-note" id="latestScoreNote">Waiting for interview data.</div>
+        </article>
+        <article class="card metric-card">
+            <div class="metric-label">Average Score</div>
+            <div class="metric-value" id="averageScore">0%</div>
+            <div class="metric-note">Built from your saved interview attempts.</div>
+        </article>
+        <article class="card metric-card">
+            <div class="metric-label">Stress</div>
+            <div class="metric-value" id="stressStatus">Calm</div>
+            <div class="metric-note" id="stressNote">Your current stress status will appear here.</div>
+        </article>
+        <article class="card metric-card">
+            <div class="metric-label">Posture</div>
+            <div class="metric-value" id="postureStatus">Checking</div>
+            <div class="metric-note" id="postureNote">Latest posture signal from your last session.</div>
+        </article>
+    </section>
+
+    <section class="content-grid">
+        <div class="content-column content-primary">
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Score Trend</h2>
+                        <p class="panel-subtitle">Each point reflects one saved answer analysis from your interview practice.</p>
+                    </div>
+                    <span class="pill" id="sessionCount">0 sessions</span>
+                </div>
+                <div class="chart-wrap">
+                    <canvas id="dashboardChart"></canvas>
+                </div>
+            </article>
+
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Live Analytics</h2>
+                        <p class="panel-subtitle">Stress trend and posture signal based on your real session history and live device feed.</p>
+                    </div>
+                </div>
+                <div class="analytics-grid">
+                    <div class="analytics-stat">
+                        <strong>Stress</strong>
+                        <span id="stress">--</span>
+                    </div>
+                    <div class="analytics-stat">
+                        <strong>Posture</strong>
+                        <span id="posture">--</span>
+                    </div>
+                    <div class="analytics-stat">
+                        <strong>Heart Rate</strong>
+                        <span id="iotDashboardHeartRate">--</span>
+                    </div>
+                    <div class="analytics-stat">
+                        <strong>Sensor Temp</strong>
+                        <span id="iotDashboardTemperature">--</span>
+                    </div>
+                </div>
+                <div id="iotDashboardMeta" class="analytics-suggestion">No ESP32 live data available yet.</div>
+                <div id="iotDashboardPackets" class="iot-packet-panel">
+                    <div class="empty-state">Waiting for ESP32 packets to arrive every 5 seconds.</div>
+                </div>
+                <div id="suggestion" class="analytics-suggestion">No analytics data available yet.</div>
+                <div class="analytics-chart-wrap">
+                    <canvas id="chart"></canvas>
+                </div>
+            </article>
+
+            <div class="detail-grid">
+                <article class="card panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Performance Snapshot</h2>
+                            <p class="panel-subtitle">Session-based performance totals built from your saved interview history.</p>
+                        </div>
+                    </div>
+                    <div class="analytics-grid">
+                        <div class="analytics-stat">
+                            <strong>Average</strong>
+                            <span id="performanceAverage">0%</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <strong>Best Score</strong>
+                            <span id="performanceBest">0%</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <strong>Sessions</strong>
+                            <span id="performanceSessions">0</span>
+                        </div>
+                        <div class="analytics-stat">
+                            <strong>Consistency</strong>
+                            <span id="performanceConsistency">0%</span>
+                        </div>
+                    </div>
+                    <div id="performanceSummary" class="analytics-suggestion">Complete an interview session to unlock a real performance summary.</div>
+                </article>
+
+                <article class="card panel">
+                    <div class="panel-header">
+                        <div>
+                            <h2>Performance Heatmap</h2>
+                            <p class="panel-subtitle">Radar view of communication, confidence, technical depth, calmness, and consistency from recent sessions.</p>
+                        </div>
+                    </div>
+                    <div class="analytics-chart-wrap">
+                        <canvas id="heatmap"></canvas>
+                    </div>
+                </article>
+            </div>
+        </div>
+
+        <div class="content-column content-secondary">
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Coach Insight</h2>
+                        <p class="panel-subtitle">Live guidance based on your latest answers and patterns.</p>
+                    </div>
+                </div>
+                <div id="insightList" class="insight-list"></div>
+            </article>
+
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Recent Sessions</h2>
+                        <p class="panel-subtitle">A quick view of your most recent interview runs.</p>
+                    </div>
+                </div>
+                <div id="sessionList" class="session-list"></div>
+            </article>
+
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Leaderboard</h2>
+                        <p class="panel-subtitle">Top members ranked by average score, best score, and session consistency.</p>
+                    </div>
+                </div>
+                <div id="leaderboardList" class="session-list"></div>
+            </article>
+
+            <article class="card panel">
+                <div class="panel-header">
+                    <div>
+                        <h2>Quick Actions</h2>
+                        <p class="panel-subtitle">Jump back into practice or review your detailed report.</p>
+                    </div>
+                </div>
+                <div class="quick-list">
+                    <div class="quick-item">
+                        <strong>Continue practicing</strong>
+                        <p>Open the interview workspace and keep building answer quality in real time.</p>
+                        <button class="btn primary" onclick="go('interview')">Open Interview</button>
+                    </div>
+                    <div class="quick-item">
+                        <strong>Review full report</strong>
+                        <p>Inspect your graph, latest suggestions, and professional downloadable report.</p>
+                        <button class="btn secondary" onclick="go('report')">Open Report</button>
+                    </div>
+                    <div class="quick-item">
+                        <strong>Account Access</strong>
+                        <p id="accountNote">Open the login or registration page to switch members or create a new account.</p>
+                        <button class="btn secondary" onclick="go('index')">Open Login / Register</button>
+                    </div>
+                    <div class="quick-item">
+                        <strong>Help & Contact</strong>
+                        <p>Open the owner support page to view contact details or send a support request that appears in the admin inbox.</p>
+                        <button class="btn secondary" onclick="go('help')">Open Help Page</button>
+                    </div>
+                </div>
+            </article>
+        </div>
+    </section>
+</main>
+
+<script src="js/theme.js"></script>
+<script src="js/apiConfig.js"></script>
+<script src="js/sessionHistory.js"></script>
+<script src="js/accessGuard.js"></script>
+<script src="js/iotLive.js"></script>
+<script src="js/analytics.js"></script>
+<script src="js/performance.js"></script>
+<script src="js/heatmap.js"></script>
+<script src="js/leaderboard.js"></script>
+<script src="js/notifications.js"></script>
+<script src="js/sidebar.js"></script>
+<script>
+    const DASHBOARD_API_URL = window.PrepGenieConfig?.API_BASE || "http://localhost:5000/api";
+    const historyHelpers = window.PrepGenieHistory;
+    let dashboardChart;
+    const accessGranted = window.PrepGenieAccess?.requireAuth?.();
+
+    function go(page) {
+        try {
+            window.location.assign(new URL(`${page}.html`, window.location.href).href);
+        } catch (_error) {
+            window.location.href = `${page}.html`;
+        }
+    }
+    window.go = go;
+
+    function parseFeedback(feedback) {
+        return historyHelpers?.parseFeedback?.(feedback) || [];
+    }
+
+    function getCurrentUser() {
+        return window.PrepGenieAccess?.getCurrentUser?.() || null;
+    }
+
+    function isAdminUser(user = getCurrentUser()) {
+        return Boolean(window.PrepGenieAccess?.isAdminUser?.(user));
+    }
+
+    function readLocalHistory() {
+        try {
+            const stored = JSON.parse(localStorage.getItem("reportHistory")) || [];
+            const normalized = historyHelpers?.normalizeHistory?.(stored) || [];
+            return historyHelpers?.filterForCurrentUser?.(normalized, getCurrentUser()) || normalized;
+        } catch (error) {
+            console.error("Local history error:", error);
+            return [];
+        }
+    }
+
+    async function fetchBackendHistory() {
+        if (!getCurrentUser()) return [];
+
+        try {
+            const data = window.PrepGenieConfig?.fetchApiJson
+                ? await window.PrepGenieConfig.fetchApiJson("/history", {}, { timeoutMs: 6000 })
+                : await fetch(`${DASHBOARD_API_URL}/history`).then((response) => {
+                    if (!response.ok) throw new Error("History API unavailable");
+                    return response.json();
+                });
+            if (!Array.isArray(data)) return [];
+
+            const normalized = historyHelpers?.normalizeHistory?.(data) || [];
+            return historyHelpers?.filterForCurrentUser?.(normalized, getCurrentUser()) || normalized;
+        } catch (error) {
+            return [];
+        }
+    }
+
+    async function loadDashboardData() {
+        const backendHistory = await fetchBackendHistory();
+        const localHistory = readLocalHistory();
+        const history = historyHelpers?.dedupeHistory?.(backendHistory.length ? backendHistory : localHistory) || (backendHistory.length ? backendHistory : localHistory);
+
+        if (!history.length) {
+            const lastScore = Number(localStorage.getItem("lastScore")) || 0;
+            const lastFeedback = parseFeedback(JSON.parse(localStorage.getItem("lastFeedback") || "[]"));
+            const lastSuggestion = localStorage.getItem("lastSuggestion") || "";
+
+            if (lastScore || lastFeedback.length || lastSuggestion) {
+                history.push({
+                    score: lastScore,
+                    feedback: lastFeedback,
+                    suggestion: lastSuggestion,
+                    round: "latest",
+                    answer: "",
+                    stress: localStorage.getItem("lastStress") || "Calm",
+                    posture: localStorage.getItem("lastPosture") || "Checking",
+                    date: new Date().toISOString()
+                });
+            }
+        }
+
+        return history.sort((a, b) => new Date(a.date) - new Date(b.date)).slice(-12);
+    }
+
+    function roundLabel(round) {
+        return historyHelpers?.roundLabel?.(round) || "General Session";
+    }
+
+    function formatSessionDate(value) {
+        return historyHelpers?.formatSessionDate?.(value) || new Date(value).toLocaleString();
+    }
+
+    function averageScore(history) {
+        if (!history.length) return 0;
+        return Math.round(history.reduce((sum, item) => sum + item.score, 0) / history.length);
+    }
+
+    async function safeModuleRefresh(moduleRef) {
+        if (!moduleRef?.refresh) return;
+        try {
+            await moduleRef.refresh();
+        } catch (error) {
+            console.warn("Dashboard module refresh skipped:", error);
+        }
+    }
+
+    function buildInsights(history) {
+        const latest = history[history.length - 1];
+        const feedbackPool = history.reduce((items, item) => {
+            if (Array.isArray(item.feedback)) {
+                items.push(...item.feedback);
+            }
+            return items;
+        }, []);
+        const items = [];
+
+        if (!latest) {
+            return [{
+                title: "No session data yet",
+                body: "Start an interview to populate your dashboard with real score, posture, and stress data."
+            }];
+        }
+
+        items.push({
+            title: "Latest suggestion",
+            body: latest.suggestion || "Keep practicing clear, structured answers with one strong example."
+        });
+
+        if (feedbackPool.some(item => /short/i.test(item))) {
+            items.push({
+                title: "Increase answer depth",
+                body: "Some of your answers are short. Aim for a fuller explanation with context and result."
+            });
+        }
+
+        if (feedbackPool.some(item => /example/i.test(item))) {
+            items.push({
+                title: "Use stronger examples",
+                body: "Bring in one specific project, challenge, or measurable outcome to strengthen your answer."
+            });
+        }
+
+        if ((latest.stress || "").toLowerCase() === "high") {
+            items.push({
+                title: "Reduce delivery stress",
+                body: "Pause briefly before you answer, then speak in shorter structured points."
+            });
+        }
+
+        return items.slice(0, 4);
+    }
+
+    function renderSummary(history) {
+        const latest = history[history.length - 1];
+        document.getElementById("latestScore").textContent = `${latest ? latest.score : 0}%`;
+        document.getElementById("averageScore").textContent = `${averageScore(history)}%`;
+        document.getElementById("stressStatus").textContent = latest ? (latest.stress || "Calm") : "Calm";
+        document.getElementById("postureStatus").textContent = latest ? (latest.posture || "Checking") : "Checking";
+        document.getElementById("sessionCount").textContent = `${history.length} session${history.length === 1 ? "" : "s"}`;
+        document.getElementById("latestScoreNote").textContent = latest
+            ? (latest.suggestion || "Latest coaching insight loaded successfully.")
+            : "Waiting for interview data.";
+        document.getElementById("stressNote").textContent = latest
+            ? `Last detected stress level: ${latest.stress || "Calm"}.`
+            : "Your current stress status will appear here.";
+        document.getElementById("postureNote").textContent = latest
+            ? `Last posture signal: ${latest.posture || "Checking"}.`
+            : "Latest posture signal from your last session.";
+    }
+
+    function renderInsights(history) {
+        const insightList = document.getElementById("insightList");
+        const items = buildInsights(history);
+        insightList.innerHTML = items.map(item => `
+            <article class="insight-item">
+                <strong>${item.title}</strong>
+                <p>${item.body}</p>
+            </article>
+        `).join("");
+    }
+
+    function renderSessions(history) {
+        const sessionList = document.getElementById("sessionList");
+        if (!history.length) {
+            sessionList.innerHTML = `<div class="empty-state">No saved interview sessions yet. Complete one interview answer to populate the dashboard.</div>`;
+            return;
+        }
+
+        const recent = [...history].reverse().slice(0, 4);
+        sessionList.innerHTML = recent.map(item => `
+            <article class="session-item">
+                <strong>${roundLabel(item.round)} • ${item.score}%</strong>
+                <p>${formatSessionDate(item.date)}</p>
+                <p>${item.suggestion || "Feedback captured for this attempt."}</p>
+            </article>
+        `).join("");
+    }
+
+    function renderChart(history) {
+        const chartWrap = document.querySelector(".chart-wrap");
+        const ctx = document.getElementById("dashboardChart");
+        if (!ctx) return;
+
+        if (typeof Chart !== "function") {
+            if (chartWrap) {
+                chartWrap.innerHTML = `<div class="empty-state">Score chart is unavailable right now, but the rest of the dashboard is still working.</div>`;
+            }
+            return;
+        }
+
+        const hasHistory = Array.isArray(history) && history.length > 0;
+        const labels = hasHistory
+            ? history.map((item, index) => `${roundLabel(item.round).replace(" Round", "")} ${index + 1}`)
+            : ["No Data"];
+        const scores = hasHistory
+            ? history.map(item => Number(item.score) || 0)
+            : [0];
+
+        if (dashboardChart) {
+            dashboardChart.destroy();
+        }
+
+        dashboardChart = new Chart(ctx, {
+            type: "line",
+            data: {
+                labels,
+                datasets: [{
+                    label: "Score",
+                    data: scores.length ? scores : [0],
+                    tension: 0.35,
+                    fill: true,
+                    borderColor: "#138a52",
+                    backgroundColor: "rgba(19, 138, 82, 0.16)",
+                    pointBackgroundColor: "#138a52",
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        min: 0,
+                        max: 100,
+                        ticks: { stepSize: 20 }
+                    }
+                }
+            }
+        });
+    }
+
+    function showDashboardToast(message) {
+        const existing = document.getElementById("dashboardToast");
+        if (existing) existing.remove();
+
+        const toast = document.createElement("div");
+        toast.id = "dashboardToast";
+        toast.className = "popup";
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+            if (toast.parentNode) toast.remove();
+        }, 2200);
+    }
+
+    async function refreshIoTDashboardPanel() {
+        const heartRateEl = document.getElementById("iotDashboardHeartRate");
+        const temperatureEl = document.getElementById("iotDashboardTemperature");
+        const metaEl = document.getElementById("iotDashboardMeta");
+        const packetsEl = document.getElementById("iotDashboardPackets");
+
+        if (!heartRateEl || !temperatureEl || !metaEl || !packetsEl || !window.PrepGenieIoT) {
+            return;
+        }
+
+        try {
+            const summary = await window.PrepGenieIoT.getSummary(20);
+            const live = summary.live;
+            const online = window.PrepGenieIoT.isConnected(live);
+            const interval = window.PrepGenieIoT.formatSampleRate(live);
+
+            heartRateEl.textContent = window.PrepGenieIoT.formatHeartRate(live);
+            temperatureEl.textContent = window.PrepGenieIoT.formatTemperature(live);
+            metaEl.textContent = online
+                ? `${window.PrepGenieIoT.buildStatusText(live)} Packet interval ${interval}. Last packet ${window.PrepGenieIoT.formatLastSeen(live.updatedAt)}.`
+                : `ESP32 sensor offline. Last packet ${window.PrepGenieIoT.formatLastSeen(live && live.updatedAt)}.`;
+            window.PrepGenieIoT.renderPacketFeed(packetsEl, summary.recent, {
+                title: "Recent packets",
+                limit: 4,
+                emptyMessage: "No ESP32 packets have been stored yet."
+            });
+        } catch (error) {
+            heartRateEl.textContent = "--";
+            temperatureEl.textContent = "--";
+            metaEl.textContent = "Unable to load ESP32 live data from the backend.";
+            window.PrepGenieIoT.renderPacketFeed(packetsEl, [], {
+                title: "Recent packets",
+                emptyMessage: "Live IoT packets could not be loaded."
+            });
+        }
+    }
+
+    async function handleDashboardRefresh() {
+        try {
+            await refreshDashboard();
+            await refreshIoTDashboardPanel();
+            await safeModuleRefresh(window.PrepGenieAnalytics);
+            await safeModuleRefresh(window.PrepGeniePerformance);
+            await safeModuleRefresh(window.PrepGenieHeatmap);
+            await safeModuleRefresh(window.PrepGenieLeaderboard);
+            await safeModuleRefresh(window.PrepGenieNotifications);
+            showDashboardToast("Dashboard refreshed successfully.");
+        } catch (error) {
+            console.error("Dashboard refresh error:", error);
+            showDashboardToast("Dashboard refresh completed with limited data.");
+        }
+    }
+    window.handleDashboardRefresh = handleDashboardRefresh;
+
+    async function refreshDashboard() {
+        const history = await loadDashboardData();
+        const currentUser = getCurrentUser();
+        const accountNote = document.getElementById("accountNote");
+        const adminNavBtn = document.getElementById("adminNavBtn");
+        const sidebarAccountStatus = document.getElementById("sidebarAccountStatus");
+        const adminUser = isAdminUser(currentUser);
+
+        if (accountNote) {
+            accountNote.textContent = currentUser && currentUser.email
+                ? `Logged in as ${currentUser.username || currentUser.email}. Use this option to switch account or register another member.`
+                : "Open the login or registration page to switch members or create a new account.";
+        }
+
+        if (sidebarAccountStatus) {
+            sidebarAccountStatus.textContent = currentUser && currentUser.email
+                ? `${currentUser.username || currentUser.email}${adminUser ? " • Admin access" : " • Member access"}`
+                : "Guest mode. Sign in to load your tracked progress.";
+        }
+
+        await safeModuleRefresh(window.PrepGenieLeaderboard);
+        await safeModuleRefresh(window.PrepGenieNotifications);
+        await safeModuleRefresh(window.PrepGeniePerformance);
+
+        if (adminNavBtn) {
+            adminNavBtn.style.display = adminUser ? "block" : "none";
+        }
+
+        renderSummary(history);
+        renderInsights(history);
+        renderSessions(history);
+        renderChart(history);
+        await refreshIoTDashboardPanel();
+    }
+
+    if (accessGranted !== false) {
+        refreshDashboard().catch((error) => {
+            console.error("Initial dashboard load error:", error);
+        });
+        setInterval(() => {
+            refreshDashboard().catch((error) => {
+                console.error("Dashboard auto-refresh error:", error);
+            });
+        }, 5000);
+    }
+</script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+

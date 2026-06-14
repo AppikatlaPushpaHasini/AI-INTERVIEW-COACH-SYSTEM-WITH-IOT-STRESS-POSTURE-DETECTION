@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#138a52">
+<meta name="description" content="PrepGenie interview intelligence platform with reports, admin controls, and IoT-ready practice sessions.">
+<title>PrepGenie</title>
+<link rel="icon" type="image/svg+xml" href="assets/prepgenie-logo.svg">
+<link rel="stylesheet" href="css/style.css">
+<style>
+  :root {
+    --bg: #f2f7f3;
+    --panel: rgba(255, 255, 255, 0.92);
+    --panel-strong: #ffffff;
+    --text: #153424;
+    --muted: #6d8577;
+    --primary: #138a52;
+    --primary-dark: #0c643b;
+    --accent: #d9f1e1;
+    --border: rgba(19, 83, 49, 0.12);
+    --shadow: 0 24px 60px rgba(17, 79, 47, 0.10);
+  }
+
+  * {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+  }
+
+  body {
+    font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+    min-height: 100vh;
+    background:
+      radial-gradient(circle at top right, rgba(19, 138, 82, 0.16), transparent 24%),
+      radial-gradient(circle at bottom left, rgba(19, 138, 82, 0.10), transparent 20%),
+      linear-gradient(180deg, #fbfdfb 0%, var(--bg) 100%);
+    color: var(--text);
+    padding: 24px;
+  }
+
+  body.dark {
+    --bg: #0f1712;
+    --panel: rgba(23, 33, 27, 0.92);
+    --panel-strong: #17211b;
+    --text: #eef7f0;
+    --muted: #adc2b4;
+    --accent: rgba(123, 226, 166, 0.12);
+    --border: rgba(123, 226, 166, 0.14);
+    --shadow: 0 24px 60px rgba(0, 0, 0, 0.24);
+  }
+
+  .shell {
+    max-width: 1320px;
+    margin: 0 auto;
+    display: grid;
+    gap: 20px;
+  }
+
+  .topbar,
+  .hero,
+  .auth-card,
+  .feature-card,
+  .section-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 28px;
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(10px);
+  }
+
+  .topbar {
+    padding: 18px 22px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .brand-mark {
+    width: 68px;
+    height: 68px;
+    object-fit: contain;
+    filter: drop-shadow(0 12px 24px rgba(17, 79, 47, 0.16));
+  }
+
+  body.dark .brand-mark {
+    filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.28));
+  }
+
+  .brand h1 {
+    font-size: 24px;
+    margin-bottom: 2px;
+  }
+
+  .brand p {
+    color: var(--muted);
+    font-size: 13px;
+  }
+
+  .top-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(360px, 0.9fr);
+    gap: 20px;
+  }
+
+  .hero {
+    padding: 32px;
+    background:
+      linear-gradient(135deg, rgba(19, 138, 82, 0.14), rgba(255,255,255,0) 55%),
+      var(--panel);
+  }
+
+  .eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--primary-dark);
+    font-size: 13px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+
+  .hero h2 {
+    font-size: clamp(34px, 5vw, 56px);
+    line-height: 1.04;
+    margin-bottom: 16px;
+    max-width: 780px;
+  }
+
+  .hero p {
+    color: var(--muted);
+    font-size: 17px;
+    line-height: 1.7;
+    max-width: 760px;
+    margin-bottom: 22px;
+  }
+
+  .hero-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 26px;
+  }
+
+  .button {
+    border: none;
+    border-radius: 16px;
+    padding: 13px 18px;
+    font-size: 15px;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+  }
+
+  .button:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+
+  .button.primary {
+    background: var(--primary);
+    color: #fff;
+  }
+
+  .button.secondary {
+    background: var(--panel-strong);
+    color: var(--text);
+    border: 1px solid var(--border);
+  }
+
+  .hero-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .feature-card {
+    padding: 18px;
+  }
+
+  .feature-card strong {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .feature-card p {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .auth-card {
+    padding: 26px;
+    background: var(--panel-strong);
+  }
+
+  .auth-card h3 {
+    font-size: 28px;
+    margin-bottom: 10px;
+  }
+
+  .auth-card > p {
+    color: var(--muted);
+    line-height: 1.6;
+    margin-bottom: 20px;
+  }
+
+  .form-block + .form-block {
+    margin-top: 26px;
+    padding-top: 24px;
+    border-top: 1px solid var(--border);
+  }
+
+  .form-block h4 {
+    font-size: 20px;
+    margin-bottom: 12px;
+  }
+
+  .field-group {
+    display: grid;
+    gap: 12px;
+    margin-bottom: 16px;
+  }
+
+  input {
+    width: 100%;
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 13px 14px;
+    font-size: 15px;
+    background: transparent;
+    color: var(--text);
+  }
+
+  input::placeholder {
+    color: var(--muted);
+  }
+
+  .note {
+    color: var(--muted);
+    font-size: 13px;
+    line-height: 1.6;
+    margin-top: 12px;
+  }
+
+  .auth-status {
+    min-height: 22px;
+    margin-top: 16px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--muted);
+  }
+
+  .section-card {
+    padding: 26px;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 18px;
+  }
+
+  .section-head h3 {
+    font-size: 26px;
+    margin-bottom: 8px;
+  }
+
+  .section-head p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .member-grid,
+  .journey-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 14px;
+  }
+
+  .member,
+  .journey-step {
+    background: var(--panel-strong);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 18px;
+  }
+
+  .member strong,
+  .journey-step strong {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 18px;
+  }
+
+  .member p,
+  .journey-step p {
+    color: var(--muted);
+    line-height: 1.6;
+  }
+
+  .journey-step span {
+    display: inline-flex;
+    width: 32px;
+    height: 32px;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    background: var(--accent);
+    color: var(--primary-dark);
+    font-weight: 800;
+    margin-bottom: 12px;
+  }
+
+  @media (max-width: 1040px) {
+    .layout,
+    .member-grid,
+    .journey-grid,
+    .hero-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  @media (max-width: 720px) {
+    body {
+      padding: 16px;
+    }
+
+    .topbar,
+    .section-head {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+
+    .hero,
+    .auth-card,
+    .section-card {
+      padding: 20px;
+    }
+  }
+</style>
+</head>
+<body>
+<div class="shell">
+  <header class="topbar">
+    <div class="brand">
+      <img class="brand-mark" src="assets/prepgenie-logo.svg" alt="PrepGenie logo">
+      <div>
+        <h1>PrepGenie</h1>
+        <p>Interview intelligence for candidates, teams, and training programs</p>
+      </div>
+    </div>
+    <div class="top-actions">
+      <button id="themeBtn" class="button secondary" onclick="toggleTheme()">Theme</button>
+      <button class="button secondary" onclick="openPreviewDashboard()">Open Dashboard</button>
+    </div>
+  </header>
+
+  <section class="layout">
+    <section class="hero">
+      <div class="eyebrow">Built for individuals, campuses, bootcamps, and hiring teams</div>
+      <h2>One interview preparation platform that works for every member, not just one user.</h2>
+      <p>PrepGenie helps candidates practice smarter, gives mentors measurable coaching signals, and gives teams a clearer view of readiness through live sessions, performance analytics, posture and stress hints, dashboards, reports, and centralized admin control.</p>
+      <div class="hero-actions">
+        <button class="button primary" onclick="window.location.href='interview.html'">Try Interview Workspace</button>
+        <button class="button secondary" onclick="window.location.href='report.html'">View Performance Reports</button>
+      </div>
+      <div class="hero-grid">
+        <article class="feature-card">
+          <strong>Candidate Ready</strong>
+          <p>Practice technical, HR, coding, and behavioural rounds with live feedback and report generation.</p>
+        </article>
+        <article class="feature-card">
+          <strong>Team Friendly</strong>
+          <p>Useful for colleges, placement cells, coaching programs, and multiple users training together.</p>
+        </article>
+        <article class="feature-card">
+          <strong>Admin Controlled</strong>
+          <p>Manage question banks, view session history, and monitor user activity from a single portal.</p>
+        </article>
+      </div>
+    </section>
+
+    <aside class="auth-card">
+      <h3>Access PrepGenie</h3>
+      <p>Sign in to continue your interview preparation or create an account for a new member in your team or training group.</p>
+
+      <section class="form-block">
+        <h4>Login</h4>
+        <div class="field-group">
+          <input id="email" placeholder="Email or Username">
+          <input id="password" type="password" placeholder="Password">
+        </div>
+        <button class="button primary" onclick="login()">Login</button>
+      </section>
+
+      <section class="form-block">
+        <h4>Register</h4>
+        <div class="field-group">
+          <input id="ruser" placeholder="Username">
+          <input id="remail" placeholder="Email">
+          <input id="rpass" type="password" placeholder="Password">
+        </div>
+        <button class="button primary" onclick="register()">Create Account</button>
+        <p class="note">Use one account per member so their sessions, analytics, and reports stay original and trackable.</p>
+      </section>
+      <div id="authStatus" class="auth-status">Create an account or sign in to continue into the product.</div>
+    </aside>
+  </section>
+
+  <section class="section-card">
+    <div class="section-head">
+      <div>
+        <h3>Useful For Every Member</h3>
+        <p>The platform is designed to support different people in the same ecosystem with different goals, while still using one shared product experience.</p>
+      </div>
+    </div>
+    <div class="member-grid">
+      <article class="member">
+        <strong>Students and Job Seekers</strong>
+        <p>Prepare for interviews independently, review scores, and improve confidence with structured guided practice.</p>
+      </article>
+      <article class="member">
+        <strong>Mentors and Trainers</strong>
+        <p>Track how learners are performing, inspect reports, and guide them using real feedback instead of guesswork.</p>
+      </article>
+      <article class="member">
+        <strong>Placement and Hiring Teams</strong>
+        <p>Use one portal to manage users, maintain question banks, and review readiness trends across many members.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section-card">
+    <div class="section-head">
+      <div>
+        <h3>How The Product Works</h3>
+        <p>Every member follows the same connected workflow, so performance data remains original from session to dashboard to report to admin review.</p>
+      </div>
+    </div>
+    <div class="journey-grid">
+      <article class="journey-step">
+        <span>1</span>
+        <strong>Join</strong>
+        <p>Create a member account and log in with a personal identity so sessions are stored against the right user journey.</p>
+      </article>
+      <article class="journey-step">
+        <span>2</span>
+        <strong>Practice</strong>
+        <p>Run interview sessions, answer questions, and capture live score, posture, stress, and coaching signals.</p>
+      </article>
+      <article class="journey-step">
+        <span>3</span>
+        <strong>Review</strong>
+        <p>See dashboard trends, generate reports, and let admins or mentors review the same original performance data.</p>
+      </article>
+    </div>
+  </section>
+
+</div>
+<script src="js/theme.js"></script>
+<script src="js/apiConfig.js"></script>
+<script src="js/accessGuard.js"></script>
+<script>
+  function openPreviewDashboard() {
+    if (window.PrepGenieAccess?.isPreviewMode?.()) {
+      window.PrepGenieAccess.enterPreviewMode();
+    }
+    window.location.href = "dashboard.html";
+  }
+
+  window.addEventListener("DOMContentLoaded", () => {
+    if (!window.PrepGenieAccess?.isPreviewMode?.()) return;
+
+    const status = document.getElementById("authStatus");
+    if (status) {
+      status.textContent = "Preview mode is active. Open Dashboard to browse locally without signing in.";
+    }
+  });
+</script>
+<script src="js/auth.js"></script>
+</body>
+</html>
+
+

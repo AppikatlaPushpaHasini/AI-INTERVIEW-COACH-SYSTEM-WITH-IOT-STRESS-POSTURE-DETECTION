@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 220" role="img" aria-labelledby="title desc">
+  <title id="title">PrepGenie logo</title>
+  <desc id="desc">Rounded green square logo with PG monogram and signal lines.</desc>
+  <defs>
+    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#138a52"/>
+      <stop offset="100%" stop-color="#6fd59f"/>
+    </linearGradient>
+  </defs>
+  <rect x="16" y="16" width="188" height="188" rx="48" fill="url(#g)"/>
+  <path d="M68 62h46c24 0 40 13 40 34 0 24-18 36-43 36H94v34H68V62zm26 22v26h18c10 0 16-4 16-13 0-9-6-13-16-13H94z" fill="#ffffff"/>
+  <path d="M160 164c-8 4-17 6-27 6-29 0-49-18-49-48 0-30 20-48 48-48 10 0 19 2 27 7v25c-7-7-15-10-25-10-15 0-25 10-25 26 0 16 10 26 26 26 9 0 17-2 25-7v23z" fill="#e9fff2"/>
+  <path d="M48 176c22-16 43-21 66-16" fill="none" stroke="#cffff1" stroke-width="10" stroke-linecap="round" opacity=".75"/>
+  <path d="M120 176c17-12 33-16 52-13" fill="none" stroke="#dfffee" stroke-width="8" stroke-linecap="round" opacity=".8"/>
+</svg>
+
