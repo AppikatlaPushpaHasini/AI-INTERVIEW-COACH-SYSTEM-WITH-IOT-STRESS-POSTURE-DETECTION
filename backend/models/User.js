@@ -22,9 +22,26 @@ const UserSchema = new mongoose.Schema({
     set: normalizeEmail,
     match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
   },
+  authProvider: {
+    type: String,
+    enum: ["google", "password"],
+    default: "password"
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true,
+    trim: true
+  },
+  avatarUrl: {
+    type: String,
+    trim: true
+  },
   password: {
     type: String,
-    required: true,
+    required() {
+      return this.authProvider === "password";
+    },
     minlength: 6
   }
 }, {

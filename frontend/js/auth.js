@@ -1,11 +1,5 @@
-const API = window.PrepGenieConfig?.API_BASE || "http://localhost:5000/api";
-
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
-}
-
-function isValidEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizeEmail(email));
 }
 
 function ensureOwnerEmail(email) {
@@ -16,16 +10,6 @@ function ensureOwnerEmail(email) {
   if (!existingOwner) {
     localStorage.setItem("ownerEmail", normalizedEmail);
   }
-}
-
-function getFieldValue(id) {
-  const element = document.getElementById(id);
-  return element ? element.value.trim() : "";
-}
-
-function clearFieldValue(id) {
-  const element = document.getElementById(id);
-  if (element) element.value = "";
 }
 
 function setAuthMessage(message, isError = false) {
@@ -51,91 +35,113 @@ function clearAuthSession() {
   localStorage.removeItem("currentUser");
 }
 
-async function register() {
-  const username = getFieldValue("ruser");
-  const email = normalizeEmail(getFieldValue("remail"));
-  const password = getFieldValue("rpass");
-
-  if (!username || !email || !password) {
-    setAuthMessage("Enter username, email, and password to create an account.", true);
-    return;
-  }
-
-  if (username.length < 3) {
-    setAuthMessage("Username must be at least 3 characters long.", true);
-    return;
-  }
-
-  if (!isValidEmail(email)) {
-    setAuthMessage("Enter a valid email address.", true);
-    return;
-  }
-
-  if (password.length < 6) {
-    setAuthMessage("Password must be at least 6 characters long.", true);
-    return;
-  }
-
-  try {
-    const data = await window.PrepGenieConfig.fetchApiJson("/auth/register", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ username, email, password })
-    }, { timeoutMs: 7000 });
-
-    ensureOwnerEmail(email);
-    setAuthMessage("Account created successfully. You can login now.");
-    const loginEmail = document.getElementById("email");
-    if (loginEmail) loginEmail.value = email;
-    clearFieldValue("ruser");
-    clearFieldValue("remail");
-    clearFieldValue("rpass");
-  } catch (error) {
-    console.error("Register request failed:", error);
-    setAuthMessage(
-      error?.status
-        ? (error.message || "Registration failed.")
-        : "Cannot reach the server. Make sure the backend is running on port 5000.",
-      true
-    );
-  }
+function getFormValue(form, name) {
+  return String(new FormData(form).get(name) || "").trim();
 }
 
-async function login() {
-  const identifier = getFieldValue("email");
-  const password = getFieldValue("password");
+function setFormLoading(form, isLoading) {
+  form.querySelectorAll("button").forEach((button) => {
+    button.disabled = isLoading;
+  });
+}
+
+function completeAuth(data, fallbackMessage = "Login successful. Opening dashboard...") {
+  if (!data?.token) {
+    setAuthMessage("Authentication succeeded, but no session token was returned.", true);
+    return false;
+  }
+
+  ensureOwnerEmail(data?.user?.email);
+  clearAuthSession();
+  saveAuthSession(data.token, data.user || {});
+  setAuthMessage(fallbackMessage);
+  window.location = "dashboard.html";
+  return true;
+}
+
+async function loginWithPassword(identifier, password) {
+  return window.PrepGenieConfig.fetchApiJson("/auth/login", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ identifier, email: identifier, password })
+  }, { timeoutMs: 10000, includeAuth: false });
+}
+
+async function handlePasswordLogin(event) {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const identifier = getFormValue(form, "identifier");
+  const password = getFormValue(form, "password");
 
   if (!identifier || !password) {
-    setAuthMessage("Enter your email or username and password to login.", true);
+    setAuthMessage("Email or username and password are required.", true);
     return;
   }
 
+  setFormLoading(form, true);
+  setAuthMessage("Checking your account...");
+
   try {
-    const data = await window.PrepGenieConfig.fetchApiJson("/auth/login", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ identifier, email: identifier, password })
-    }, { timeoutMs: 7000 });
-
-    if (!data.token) {
-      setAuthMessage("Login failed.", true);
-      return;
-    }
-
-    ensureOwnerEmail(data?.user?.email || identifier);
-    clearAuthSession();
-    saveAuthSession(data.token, data.user || { email: identifier });
-    setAuthMessage("Login successful. Redirecting...");
-    window.location = "dashboard.html";
+    const data = await loginWithPassword(identifier, password);
+    completeAuth(data);
   } catch (error) {
-    console.error("Login request failed:", error);
+    console.error("Password login failed:", error);
     setAuthMessage(
       error?.status
         ? (error.message || "Login failed.")
         : "Cannot reach the server. Make sure the backend is running on port 5000.",
       true
     );
+  } finally {
+    setFormLoading(form, false);
   }
+}
+
+async function handlePasswordRegister(event) {
+  event.preventDefault();
+
+  const form = event.currentTarget;
+  const username = getFormValue(form, "username");
+  const email = getFormValue(form, "email");
+  const password = getFormValue(form, "password");
+
+  if (!username || !email || !password) {
+    setAuthMessage("Username, email, and password are required.", true);
+    return;
+  }
+
+  setFormLoading(form, true);
+  setAuthMessage("Creating your account...");
+
+  try {
+    let data = await window.PrepGenieConfig.fetchApiJson("/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username, email, password })
+    }, { timeoutMs: 10000, includeAuth: false });
+
+    if (!data?.token) {
+      data = await loginWithPassword(email, password);
+    }
+
+    completeAuth(data, "Account created. Opening dashboard...");
+  } catch (error) {
+    console.error("Password registration failed:", error);
+    setAuthMessage(
+      error?.status
+        ? (error.message || "Registration failed.")
+        : "Cannot reach the server. Make sure the backend is running on port 5000.",
+      true
+    );
+  } finally {
+    setFormLoading(form, false);
+  }
+}
+
+function initPasswordAuth() {
+  document.getElementById("passwordLoginForm")?.addEventListener("submit", handlePasswordLogin);
+  document.getElementById("passwordRegisterForm")?.addEventListener("submit", handlePasswordRegister);
 }
 
 window.logout = function logout() {
@@ -144,15 +150,5 @@ window.logout = function logout() {
 };
 
 window.addEventListener("DOMContentLoaded", () => {
-  ["email", "password", "ruser", "remail", "rpass"].forEach((id) => {
-    const field = document.getElementById(id);
-    if (!field) return;
-
-    field.addEventListener("keydown", (event) => {
-      if (event.key !== "Enter") return;
-      event.preventDefault();
-      if (id === "email" || id === "password") login();
-      else register();
-    });
-  });
+  initPasswordAuth();
 });

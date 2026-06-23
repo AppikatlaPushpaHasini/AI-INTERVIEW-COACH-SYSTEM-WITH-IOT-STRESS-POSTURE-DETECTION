@@ -35,6 +35,15 @@ function writeArray(filePath, items) {
   fs.writeFileSync(filePath, JSON.stringify(items, null, 2), "utf8");
 }
 
+function writeArrayIfChanged(filePath, currentItems, nextItems) {
+  if (JSON.stringify(currentItems) === JSON.stringify(nextItems)) {
+    return false;
+  }
+
+  writeArray(filePath, nextItems);
+  return true;
+}
+
 function dedupeSessions(items) {
   const seen = new Set();
   const deduped = [];
@@ -70,6 +79,12 @@ function getStorageMode() {
   return isMongoAvailable() ? "mongo" : "file";
 }
 
+function cleanObject(payload) {
+  return Object.fromEntries(
+    Object.entries(payload || {}).filter(([, value]) => value !== undefined)
+  );
+}
+
 async function findUserByEmail(email) {
   if (isMongoAvailable()) {
     return User.findOne({ email }).lean();
@@ -77,6 +92,18 @@ async function findUserByEmail(email) {
 
   const users = readArray(usersFile);
   return users.find((user) => String(user.email || "").toLowerCase() === String(email || "").toLowerCase()) || null;
+}
+
+async function findUserByGoogleId(googleId) {
+  const normalizedGoogleId = String(googleId || "").trim();
+  if (!normalizedGoogleId) return null;
+
+  if (isMongoAvailable()) {
+    return User.findOne({ googleId: normalizedGoogleId }).lean();
+  }
+
+  const users = readArray(usersFile);
+  return users.find((user) => String(user.googleId || "").trim() === normalizedGoogleId) || null;
 }
 
 async function findUserByUsername(username) {
@@ -109,17 +136,55 @@ async function createUser(payload) {
 
   const users = readArray(usersFile);
   const now = new Date().toISOString();
-  const user = {
+  const user = cleanObject({
     _id: crypto.randomUUID(),
     username: payload.username,
     email: payload.email,
+    authProvider: payload.authProvider || (payload.password ? "password" : "google"),
+    googleId: payload.googleId,
+    avatarUrl: payload.avatarUrl,
     password: payload.password,
     createdAt: now,
     updatedAt: now
-  };
+  });
   users.push(user);
   writeArray(usersFile, users);
   return { ...user };
+}
+
+async function updateUserById(id, updates) {
+  const userId = String(id || "").trim();
+  if (!userId) return null;
+
+  const cleanUpdates = cleanObject(updates);
+  if (!Object.keys(cleanUpdates).length) {
+    return null;
+  }
+
+  if (isMongoAvailable()) {
+    return User.findByIdAndUpdate(
+      userId,
+      { $set: cleanUpdates },
+      { new: true, runValidators: true }
+    ).lean();
+  }
+
+  const users = readArray(usersFile);
+  const userIndex = users.findIndex((user) => String(user._id || user.id || "") === userId);
+
+  if (userIndex === -1) {
+    return null;
+  }
+
+  const updatedUser = {
+    ...users[userIndex],
+    ...cleanUpdates,
+    updatedAt: new Date().toISOString()
+  };
+
+  users[userIndex] = updatedUser;
+  writeArray(usersFile, users);
+  return { ...updatedUser };
 }
 
 async function listUsers() {
@@ -144,10 +209,11 @@ async function createHistory(payload) {
     return session.toObject();
   }
 
-  const sessions = dedupeSessions(readArray(historyFile));
+  const storedSessions = readArray(historyFile);
+  const sessions = dedupeSessions(storedSessions);
   const existing = sessions.find((item) => String(item.sessionId || "") === String(payload.sessionId || ""));
   if (existing) {
-    writeArray(historyFile, sessions);
+    writeArrayIfChanged(historyFile, storedSessions, sessions);
     return existing;
   }
 
@@ -160,7 +226,7 @@ async function createHistory(payload) {
     updatedAt: now
   };
   sessions.push(session);
-  writeArray(historyFile, dedupeSessions(sessions));
+  writeArrayIfChanged(historyFile, storedSessions, dedupeSessions(sessions));
   return session;
 }
 
@@ -170,8 +236,9 @@ async function listHistory(order = "asc") {
     return History.find({}).sort(sort).lean();
   }
 
-  const sessions = dedupeSessions(readArray(historyFile)).slice();
-  writeArray(historyFile, sessions);
+  const storedSessions = readArray(historyFile);
+  const sessions = dedupeSessions(storedSessions).slice();
+  writeArrayIfChanged(historyFile, storedSessions, sessions);
   sessions.sort((a, b) => {
     const delta = new Date(a.date || 0) - new Date(b.date || 0);
     return order === "desc" ? -delta : delta;
@@ -182,9 +249,11 @@ async function listHistory(order = "asc") {
 module.exports = {
   getStorageMode,
   findUserByEmail,
+  findUserByGoogleId,
   findUserByUsername,
   findUserByCredential,
   createUser,
+  updateUserById,
   listUsers,
   createHistory,
   listHistory

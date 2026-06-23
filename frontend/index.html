@@ -172,6 +172,13 @@
     box-shadow: var(--shadow);
   }
 
+  .button:disabled {
+    cursor: not-allowed;
+    opacity: 0.65;
+    transform: none;
+    box-shadow: none;
+  }
+
   .button.primary {
     background: var(--primary);
     color: #fff;
@@ -236,6 +243,15 @@
     display: grid;
     gap: 12px;
     margin-bottom: 16px;
+  }
+
+  .auth-form {
+    display: grid;
+    gap: 12px;
+  }
+
+  .auth-form .button {
+    width: 100%;
   }
 
   input {
@@ -400,29 +416,35 @@
     </section>
 
     <aside class="auth-card">
-      <h3>Access PrepGenie</h3>
-      <p>Sign in to continue your interview preparation or create an account for a new member in your team or training group.</p>
+      <h3>Login / Register</h3>
+      <p>Use email and password to access PrepGenie.</p>
 
-      <section class="form-block">
+      <section class="form-block" aria-label="Email login">
         <h4>Login</h4>
-        <div class="field-group">
-          <input id="email" placeholder="Email or Username">
-          <input id="password" type="password" placeholder="Password">
-        </div>
-        <button class="button primary" onclick="login()">Login</button>
+        <form id="passwordLoginForm" class="auth-form">
+          <div class="field-group">
+            <input name="identifier" type="text" autocomplete="username" placeholder="Email or username" required>
+            <input name="password" type="password" autocomplete="current-password" placeholder="Password" required>
+          </div>
+          <button class="button primary" type="submit">Login</button>
+        </form>
+        <p class="note">For members who already have a PrepGenie account.</p>
       </section>
 
-      <section class="form-block">
+      <section class="form-block" aria-label="Email register">
         <h4>Register</h4>
-        <div class="field-group">
-          <input id="ruser" placeholder="Username">
-          <input id="remail" placeholder="Email">
-          <input id="rpass" type="password" placeholder="Password">
-        </div>
-        <button class="button primary" onclick="register()">Create Account</button>
-        <p class="note">Use one account per member so their sessions, analytics, and reports stay original and trackable.</p>
+        <form id="passwordRegisterForm" class="auth-form">
+          <div class="field-group">
+            <input name="username" type="text" autocomplete="username" placeholder="Username" minlength="3" required>
+            <input name="email" type="email" autocomplete="email" placeholder="Email" required>
+            <input name="password" type="password" autocomplete="new-password" placeholder="Password" minlength="6" required>
+          </div>
+          <button class="button primary" type="submit">Create Account</button>
+        </form>
+        <p class="note">For new members creating a PrepGenie account locally.</p>
       </section>
-      <div id="authStatus" class="auth-status">Create an account or sign in to continue into the product.</div>
+
+      <div id="authStatus" class="auth-status">Ready to sign in.</div>
     </aside>
   </section>
 
@@ -460,7 +482,7 @@
       <article class="journey-step">
         <span>1</span>
         <strong>Join</strong>
-        <p>Create a member account and log in with a personal identity so sessions are stored against the right user journey.</p>
+        <p>Sign in so sessions are stored against the right verified user journey.</p>
       </article>
       <article class="journey-step">
         <span>2</span>
@@ -481,10 +503,19 @@
 <script src="js/accessGuard.js"></script>
 <script>
   function openPreviewDashboard() {
-    if (window.PrepGenieAccess?.isPreviewMode?.()) {
-      window.PrepGenieAccess.enterPreviewMode();
+    if (window.PrepGenieAccess?.isLoggedIn?.()) {
+      window.location.href = "dashboard.html";
+      return;
     }
-    window.location.href = "dashboard.html";
+
+    const authCard = document.querySelector(".auth-card");
+    if (authCard) {
+      authCard.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+
+    if (typeof setAuthMessage === "function") {
+      setAuthMessage("Please login or register first.", true);
+    }
   }
 
   window.addEventListener("DOMContentLoaded", () => {

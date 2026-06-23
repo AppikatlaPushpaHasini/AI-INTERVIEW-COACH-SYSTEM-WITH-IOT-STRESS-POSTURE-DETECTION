@@ -6,20 +6,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PrepGenie</title>
   <script>
-    const isLocalPreview = window.location.protocol === "file:" ||
-      window.location.hostname === "localhost" ||
-      window.location.hostname === "127.0.0.1";
-    const target = isLocalPreview ? "frontend/dashboard.html" : "frontend/index.html";
-
-    if (isLocalPreview) {
-      try {
-        window.sessionStorage.setItem("prepgeniePreviewMode", "1");
-      } catch (error) {
-        // Ignore session storage failures and continue with the redirect.
-      }
-    }
-
-    window.location.replace(target);
+    window.location.replace("frontend/index.html");
   </script>
 </head>
 <body>

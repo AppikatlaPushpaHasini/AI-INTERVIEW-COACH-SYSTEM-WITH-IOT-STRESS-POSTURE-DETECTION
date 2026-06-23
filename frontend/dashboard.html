@@ -621,7 +621,7 @@
             <button type="button" data-short="IN" title="Interview" onclick="go('interview')">Interview</button>
             <button type="button" data-short="RP" title="Reports" onclick="go('report')">Reports</button>
             <button type="button" id="notificationsNavBtn" data-short="NT" title="Notifications" onclick="go('notifications')">Notifications<span id="dashboardNotificationsBadge" class="sidebar-badge" data-role="notification-badge" hidden></span></button>
-            <button type="button" data-short="LG" title="Login / Register" onclick="go('index')">Login / Register</button>
+            <button type="button" data-short="LG" title="Google Login / Register" onclick="go('index')">Google Login / Register</button>
             <button type="button" id="adminNavBtn" data-short="AD" title="Admin" onclick="go('admin')">Admin</button>
             <button type="button" data-short="HP" title="Help" onclick="go('help')">Help</button>
         </div>
@@ -814,9 +814,9 @@
                         <button class="btn secondary" onclick="go('report')">Open Report</button>
                     </div>
                     <div class="quick-item">
-                        <strong>Account Access</strong>
-                        <p id="accountNote">Open the login or registration page to switch members or create a new account.</p>
-                        <button class="btn secondary" onclick="go('index')">Open Login / Register</button>
+                        <strong>Google Account Access</strong>
+                        <p id="accountNote">Open Google Login / Register to switch members or create a new account.</p>
+                        <button class="btn secondary" onclick="go('index')">Open Google Login / Register</button>
                     </div>
                     <div class="quick-item">
                         <strong>Help & Contact</strong>
@@ -1174,8 +1174,8 @@
 
         if (accountNote) {
             accountNote.textContent = currentUser && currentUser.email
-                ? `Logged in as ${currentUser.username || currentUser.email}. Use this option to switch account or register another member.`
-                : "Open the login or registration page to switch members or create a new account.";
+                ? `Logged in as ${currentUser.username || currentUser.email}. Use Google Login / Register to switch account or register another member.`
+                : "Open Google Login / Register to switch members or create a new account.";
         }
 
         if (sidebarAccountStatus) {

@@ -1,8 +1,8 @@
 # PrepGenie
 
-PrepGenie is an interview practice platform with:
+PrepGenie is an AI-powered interview practice platform with IoT stress and posture detection. It includes:
 
-- multi-user login and registration
+- Google-only sign-in with automatic member profile creation
 - live mock interview analysis
 - dashboard and report views
 - admin management for users, session history, questions, and support inbox
@@ -23,10 +23,15 @@ PrepGenie is an interview practice platform with:
 
 1. Install dependencies:
    `npm install`
-2. Start the app server:
+2. Create a Google OAuth Web client ID in Google Cloud Console.
+3. Add these local URLs to the OAuth client's authorized JavaScript origins:
+   `http://localhost:5000`
+   `http://127.0.0.1:5501`
+4. Paste the Web client ID into `.env` as `GOOGLE_CLIENT_ID`.
+5. Start the app server:
    `npm start`
-3. Open `http://localhost:5000/`.
-4. Optional for a fake live feed without hardware:
+6. Open `http://localhost:5000/` and continue with Google.
+7. Optional for a fake live feed without hardware:
    `npm run iot:sim`
 
 ## Default Backend

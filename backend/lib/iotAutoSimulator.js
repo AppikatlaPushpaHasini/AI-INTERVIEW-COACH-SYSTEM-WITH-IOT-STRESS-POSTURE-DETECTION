@@ -40,7 +40,7 @@ function isExternalSimulatorActive(snapshot, fallbackIntervalMs) {
 function startIoTAutoSimulator(options = {}) {
   const enabled = normalizeFlag(
     options.enabled ?? process.env.IOT_AUTO_SIM_ENABLED,
-    true
+    false
   );
   const intervalMs = Math.max(
     1000,

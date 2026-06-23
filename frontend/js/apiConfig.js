@@ -1,5 +1,10 @@
 (function () {
-  const defaultOrigin = "http://localhost:5000";
+  const localBackendOrigin = "http://localhost:5000";
+  const defaultOrigin = localBackendOrigin;
+  const configuredOrigin =
+    window.PREPGENIE_API_ORIGIN ||
+    document.querySelector('meta[name="prepgenie-api-origin"]')?.content ||
+    "";
   const customOrigin = window.localStorage.getItem("prepgenieApiOrigin");
   const retryableStatuses = new Set([404, 408, 425, 429, 500, 502, 503, 504]);
 
@@ -41,13 +46,30 @@
     };
   }
 
+  function isLocalHost(hostname = window.location.hostname) {
+    const host = String(hostname || "").toLowerCase();
+    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
+  }
+
+  function getCurrentOrigin() {
+    if (!/^https?:$/.test(window.location.protocol)) {
+      return "";
+    }
+
+    return window.location.origin;
+  }
+
   function inferOrigin() {
     if (!/^https?:$/.test(window.location.protocol)) {
       return defaultOrigin;
     }
 
+    if (!isLocalHost()) {
+      return getCurrentOrigin();
+    }
+
     if (window.location.port === "5000") {
-      return `${window.location.protocol}//${window.location.host}`;
+      return getCurrentOrigin();
     }
 
     return `${window.location.protocol}//${window.location.hostname}:5000`;
@@ -60,12 +82,14 @@
   function getCandidateOrigins() {
     return unique([
       sanitizeOrigin(window.localStorage.getItem("prepgenieApiOrigin")),
+      sanitizeOrigin(configuredOrigin),
       sanitizeOrigin(inferOrigin()),
-      sanitizeOrigin(defaultOrigin)
+      sanitizeOrigin(getCurrentOrigin()),
+      isLocalHost() ? sanitizeOrigin(localBackendOrigin) : ""
     ]);
   }
 
-  let origin = sanitizeOrigin(customOrigin || inferOrigin() || defaultOrigin);
+  let origin = sanitizeOrigin(customOrigin || configuredOrigin || inferOrigin() || defaultOrigin);
   let apiBase = `${origin}/api`;
 
   function setResolvedOrigin(nextOrigin, persist = false) {

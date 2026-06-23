@@ -1,9 +1,30 @@
 # Deployment Notes
 
+## Recommended Host Setup
+
+Deploy this project as a Node.js web service, not as only static frontend files.
+
+- build command: `npm install`
+- start command: `npm start`
+- app URL: open the deployed service root, for example `https://your-app.onrender.com/`
+- health check: `https://your-app.onrender.com/api/health`
+
+Required environment variables:
+
+- `MONGO_URI`: your MongoDB Atlas connection string
+- `JWT_SECRET`: a long random secret for login tokens
+- `ADMIN_EMAIL`: the email that should receive admin access
+
+Optional environment variables:
+
+- `PORT`: most hosts set this automatically
+- `SUPPORT_SMTP_HOST`, `SUPPORT_SMTP_PORT`, `SUPPORT_SMTP_USER`, `SUPPORT_SMTP_PASS`
+- `SUPPORT_FROM_EMAIL`, `SUPPORT_TO_EMAIL`
+
 ## Backend
 
 - run with `npm start`
-- default port is `5000`
+- local default port is `5000`
 - health endpoint: `/api/health`
 - the same server now also serves the frontend at `/`
 
@@ -13,7 +34,9 @@ Open the app directly from the backend server when testing locally:
 
 - `http://localhost:5000/`
 
-For hosted deployments, you can still serve `frontend/` as static files from any web server.
+For hosted deployments, the simplest setup is to let the Express backend serve the frontend from the same deployed domain. If you deploy `frontend/` separately on a static host, set the API origin in the browser once:
+
+`localStorage.setItem("prepgenieApiOrigin", "https://YOUR-BACKEND-DOMAIN"); location.reload();`
 
 ## Mobile Access
 

@@ -14,14 +14,5 @@
     "password": "$2a$10$XxVNvmROE0r0pqnvOHsUeOxmWOdU5tVtdHS/HW52SScg6t6PxB9dm",
     "createdAt": "2026-03-29T07:55:08.874Z",
     "updatedAt": "2026-03-29T07:55:08.874Z"
-  },
-  {
-    "_id": "09e07834-e647-4a7b-b67f-6e197a47d85d",
-    "username": "AppikatlaPushpaHasini",
-    "email": "hasiniappikatla@gmail.com",
-    "authProvider": "password",
-    "password": "$2a$10$NZW47AwWmXoPb5RpmRLjEOJjnZyrSeNvpPrnHSEd9ySlgBpdbpMDS",
-    "createdAt": "2026-06-23T11:47:34.166Z",
-    "updatedAt": "2026-06-23T11:47:34.166Z"
   }
 ]

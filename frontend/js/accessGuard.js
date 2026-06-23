@@ -35,13 +35,8 @@
     }
   }
 
-  function isLocalPreviewHost() {
-    const host = String(window.location.hostname || "").toLowerCase();
-    return host === "localhost" || host === "127.0.0.1" || host === "::1" || host === "[::1]";
-  }
-
   function isPreviewMode() {
-    return window.location.protocol === "file:" || hasPreviewSession() || isLocalPreviewHost();
+    return window.location.protocol === "file:" || hasPreviewSession();
   }
 
   function enterPreviewMode() {
